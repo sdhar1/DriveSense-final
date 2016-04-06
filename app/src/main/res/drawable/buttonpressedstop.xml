@@ -6,11 +6,11 @@
     <gradient
         android:gradientRadius="200"
         android:centerX="50%"
-        android:centerY="25%"
+        android:centerY="50%"
         android:centerColor="#bc333c"
         android:startColor="#ff868c"
         android:endColor="#86262c"
-        android:type="radial"
+        android:type="linear"
         />
     <padding
         android:left="0dp"
