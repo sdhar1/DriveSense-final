@@ -81,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
 
         final Button btnStart = (Button) findViewById(R.id.btnstart);
         final TextView txtView= (TextView) findViewById(R.id.textspeed);
-        //btnStart.setTypeface();
         btnStart.setOnClickListener(new View.OnClickListener() {
 
             @Override
