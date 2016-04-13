@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,10 +55,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Setting custom font for TextViews
-        TextView setfont=(TextView)findViewById(R.id.textspeed);
-        Typeface DriveSenseFont=Typeface.createFromAsset(getAssets(),"fonts/JosefinSans-Light.ttf");
-        setfont.setTypeface(DriveSenseFont);
+
 
         setContentView(R.layout.activity_main);
         android.support.v7.widget.Toolbar mToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.maintoolbar);
@@ -73,6 +71,14 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
+
+        //Setting custom font for TextViews
+        TextView setfont=(TextView)findViewById(R.id.textspeed);
+        Typeface DriveSenseFont=Typeface.createFromAsset(getAssets(), "fonts/JosefinSans-Light.ttf");
+        setfont.setTypeface(DriveSenseFont);
+//        ImageView imageViewIcon = (ImageView)findViewById(R.id.imageView);
+//        imageViewIcon.setColorFilter(getContext().getResources().getColor(R.color.primary_dark_material_dark));
+
         return true;
     }
 
@@ -88,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                 if (started == 0) {
                     Toast.makeText(MainActivity.this, "Service Started!", Toast.LENGTH_SHORT).show();
                     startRunning();
-                    started=1;
+                    started = 1;
                     txtView.setText("0"); // speed variable to be displayed here instead of 0
                     txtView.setTextSize(50);
                     btnStart.setBackgroundResource(R.drawable.stop_button);
@@ -96,17 +102,27 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(MainActivity.this, "Service Stopped!", Toast.LENGTH_SHORT).show();
                     stopRunning();
-                    started=0;
+                    started = 0;
                     txtView.setText(R.string.pressButton); // speed variable to be displayed here instead of 0
                     txtView.setTextSize(20);
                     btnStart.setBackgroundResource(R.drawable.start_button);
                     btnStart.setText(R.string.start_button);
-                    //*****Open DriveRatingActivity here*****
+                    showDriveRating(curtrip_);
+
                 }
             }
         });
     }
 
+    public void showDriveRating(Trip curtrip) {
+        Intent intent = new Intent(this, DriveRatingActivity.class);
+        intent.putExtra("Current Trip", curtrip_);
+        startActivity(intent);
+    }
+    public void showHistory() {
+        Intent intent = new Intent(this, HistoryActivity.class);
+        startActivity(intent);
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -115,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.history:
-
+                showHistory();
                 return true;
             case R.id.about:
 

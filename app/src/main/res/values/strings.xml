@@ -3,4 +3,7 @@
     <string name="start_button">Start</string>
     <string name="stop_button">Stop</string>
     <string name="pressButton">Press the Start button before starting your drive.</string>
+    <string name="title_activity_drive_rating">Your Drive Rating</string>
+    <string name="title_activity_history">History</string>
+    <string name="action_settings">Settings</string>
 </resources>

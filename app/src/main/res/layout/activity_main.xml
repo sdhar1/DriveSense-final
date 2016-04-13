@@ -13,9 +13,9 @@
         android:id="@+id/maintoolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/main_activity_background"
+        android:background="@color/toolBarColor"
         android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        android:theme="@style/ToolbarTheme"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
@@ -48,7 +48,9 @@
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:id="@+id/textspeed"
         android:layout_above="@+id/btnstart"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        style="@style/textStyle"
+        />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -56,13 +58,27 @@
         android:layout_alignBottom="@id/textspeed"
         android:text="mph"
         android:textSize="50dp"
-        android:id="@+id/textView" />
+        android:id="@+id/textView"
+        style="@style/textStyle"
+        />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView"
+        android:tint="@color/toolBarColor"
+        android:layout_alignTop="@+id/textView"
+        android:src="@drawable/ic_directions_car_24dp1"
+        android:layout_above="@+id/textspeed"
+        android:layout_alignRight="@+id/btnstart"
+        android:layout_alignEnd="@+id/btnstart"
+        android:layout_alignLeft="@+id/btnstart"
+        android:layout_alignStart="@+id/btnstart" />
 
 
-
-        <!--android:layout_alignParentLeft="true"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"-->
+    <!--android:layout_alignParentLeft="true"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentStart="true"-->
 
 
 </RelativeLayout>
