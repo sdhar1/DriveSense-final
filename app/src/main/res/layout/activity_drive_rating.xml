@@ -8,7 +8,7 @@
     tools:context="wisc.drivesense.activity.DriveRatingActivity">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
+        android:id="@+id/tool_bar_rating"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@drawable/main_activity_background"
