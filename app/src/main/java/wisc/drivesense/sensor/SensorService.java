@@ -73,7 +73,6 @@ public class SensorService extends Service implements SensorEventListener, Locat
             trace.values[1] = (float) location.getLongitude();
             trace.values[2] = location.getSpeed();
 
-            //dbHelper_.insertSensorData(trace);
             sendTrace(trace);
         }
 
@@ -121,22 +120,17 @@ public class SensorService extends Service implements SensorEventListener, Locat
             trace.type = Trace.MAGNETOMETER;
             System.arraycopy(event.values, 0, trace.values, 0, event.values.length);
 
-            //dbHelper_.insertSensorData(trace);
             sendTrace(trace);
 
         } else if(type==Sensor.TYPE_ACCELEROMETER && (time - tLastAccelerometer) >= 200) {
             tLastAccelerometer = time;
             System.arraycopy(event.values, 0, mLastAccelerometer, 0, event.values.length);
             mLastAccelerometerSet = true;
-            //store into database
-            //Log.d(TAG, mLastAccelerometer.toString());
 
             Trace trace = new Trace(3);
             trace.time = time;
             trace.type = Trace.ACCELEROMETER;
             System.arraycopy(event.values, 0, trace.values, 0, event.values.length);
-
-            //dbHelper_.insertSensorData(trace);
             sendTrace(trace);
 
         } else if (type == Sensor.TYPE_GYROSCOPE && (time - tLastGyroscope) >= 200) {
@@ -147,7 +141,6 @@ public class SensorService extends Service implements SensorEventListener, Locat
             trace.time = time;
             trace.type = Trace.GYROSCOPE;
             System.arraycopy(event.values, 0, trace.values, 0, event.values.length);
-            //dbHelper_.insertSensorData(trace);
             sendTrace(trace);
 
         } else {
@@ -164,7 +157,6 @@ public class SensorService extends Service implements SensorEventListener, Locat
             trace.time = time;
             trace.type = Trace.ROTATION_MATRIX;
             System.arraycopy(mR, 0, trace.values, 0, mR.length);
-            //dbHelper_.insertSensorData(trace);
             sendTrace(trace);
         }
     }
@@ -204,7 +196,6 @@ public class SensorService extends Service implements SensorEventListener, Locat
 
     private void startService() {
         Log.d(TAG, "start service");
-        isRunning_.set(true);
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
@@ -217,7 +208,7 @@ public class SensorService extends Service implements SensorEventListener, Locat
     }
 
     private void sendTrace(Trace trace) {
-        Log.d(TAG, trace.toJson());
+        //Log.d(TAG, trace.toJson());
         Intent intent = new Intent("sensor");
         intent.putExtra("trace", trace.toJson());
 

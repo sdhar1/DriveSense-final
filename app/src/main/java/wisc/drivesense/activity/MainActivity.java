@@ -30,6 +30,8 @@ import wisc.drivesense.R;
 import wisc.drivesense.sensor.SensorService;
 import wisc.drivesense.sensor.SensorServiceConnection;
 import wisc.drivesense.database.DatabaseHelper;
+import wisc.drivesense.uploader.UploaderService;
+import wisc.drivesense.uploader.UploaderServiceConnection;
 import wisc.drivesense.utility.Trace;
 import wisc.drivesense.utility.Trip;
 
@@ -48,6 +50,10 @@ public class MainActivity extends AppCompatActivity {
     /////////////
     private static Intent mSensorIntent = null;
     private static SensorServiceConnection mSensorServiceConnection = null;
+
+    private static Intent mUploaderIntent = null;
+    private static UploaderServiceConnection mUploaderServiceConnection = null;
+
     private static String TAG = "MainActivity";
 
     @Override
@@ -151,20 +157,28 @@ public class MainActivity extends AppCompatActivity {
         dbHelper_.createDatabase(time);
         curtrip_.setStartTime(time);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("sensor"));
+       // LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("sensor"));
 
         mSensorIntent = new Intent(this, SensorService.class);
         mSensorServiceConnection = new SensorServiceConnection(dbHelper_);
         Log.d(TAG, "Binding sensor service..");
         bindService(mSensorIntent, mSensorServiceConnection, Context.BIND_AUTO_CREATE);
         startService(mSensorIntent);
+
+
+        mUploaderIntent = new Intent(this, UploaderService.class);
+        mUploaderServiceConnection = new UploaderServiceConnection(dbHelper_);
+        Log.d(TAG, "Binding uploader service..");
+        bindService(mUploaderIntent, mUploaderServiceConnection, Context.BIND_AUTO_CREATE);
+        startService(mUploaderIntent);
+
     }
 
 
     private synchronized void stopRunning() {
 
         Log.d(TAG, "Stopping live data..");
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
 
 
         curtrip_.setEndTime(System.currentTimeMillis());
@@ -179,7 +193,13 @@ public class MainActivity extends AppCompatActivity {
             mSensorIntent = null;
             mSensorServiceConnection = null;
         }
-
+        if (mUploaderServiceConnection != null && mUploaderServiceConnection.isRunning()) {
+            Log.d(TAG, "stop sensor servcie");
+            unbindService(mUploaderServiceConnection);
+            stopService(mUploaderIntent);
+            mUploaderIntent = null;
+            mUploaderServiceConnection = null;
+        }
     }
 
     /**

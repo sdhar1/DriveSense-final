@@ -22,7 +22,7 @@ public class DatabaseHelper {
     private static SQLiteDatabase meta_ = null;
     private static SQLiteDatabase db_ = null;
 
-    private static String DB_PATH = "/data/data/wisc.drivesense/files/";
+    public static String DB_PATH = "/data/data/wisc.drivesense/files/";
     //private static String DB_PATH = "/sdcard/databases/";
 
     // Database Version
