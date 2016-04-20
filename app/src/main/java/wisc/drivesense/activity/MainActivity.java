@@ -27,6 +27,7 @@ import android.widget.Toolbar;
 import java.io.File;
 
 import wisc.drivesense.R;
+import wisc.drivesense.rating.Rating;
 import wisc.drivesense.sensor.SensorService;
 import wisc.drivesense.sensor.SensorServiceConnection;
 import wisc.drivesense.database.DatabaseHelper;
@@ -46,7 +47,9 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtSpeed;
     private static DatabaseHelper dbHelper_;
     private Trip curtrip_;
-    private int started=0;
+    private int started = 0;
+    private Rating rating;
+
     /////////////
     private static Intent mSensorIntent = null;
     private static SensorServiceConnection mSensorServiceConnection = null;
@@ -156,8 +159,9 @@ public class MainActivity extends AppCompatActivity {
         long time = System.currentTimeMillis();
         dbHelper_.createDatabase(time);
         curtrip_.setStartTime(time);
+        rating = new Rating(curtrip_);
 
-       // LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("sensor"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("sensor"));
 
         mSensorIntent = new Intent(this, SensorService.class);
         mSensorServiceConnection = new SensorServiceConnection(dbHelper_);
@@ -166,19 +170,20 @@ public class MainActivity extends AppCompatActivity {
         startService(mSensorIntent);
 
 
+        /*
         mUploaderIntent = new Intent(this, UploaderService.class);
         mUploaderServiceConnection = new UploaderServiceConnection(dbHelper_);
         Log.d(TAG, "Binding uploader service..");
         bindService(mUploaderIntent, mUploaderServiceConnection, Context.BIND_AUTO_CREATE);
         startService(mUploaderIntent);
-
+        */
     }
 
 
     private synchronized void stopRunning() {
 
         Log.d(TAG, "Stopping live data..");
-        //LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
 
 
         curtrip_.setEndTime(System.currentTimeMillis());
@@ -193,6 +198,8 @@ public class MainActivity extends AppCompatActivity {
             mSensorIntent = null;
             mSensorServiceConnection = null;
         }
+
+        /*
         if (mUploaderServiceConnection != null && mUploaderServiceConnection.isRunning()) {
             Log.d(TAG, "stop sensor servcie");
             unbindService(mUploaderServiceConnection);
@@ -200,6 +207,7 @@ public class MainActivity extends AppCompatActivity {
             mUploaderIntent = null;
             mUploaderServiceConnection = null;
         }
+        */
     }
 
     /**
@@ -216,6 +224,9 @@ public class MainActivity extends AppCompatActivity {
             }
             if(trace.type == Trace.GPS) {
                 curtrip_.addGPS(trace);
+            }
+            if(rating != null) {
+                rating.readingData(trace);
             }
             Log.d(TAG, "Got message: " + trace.toJson());
 

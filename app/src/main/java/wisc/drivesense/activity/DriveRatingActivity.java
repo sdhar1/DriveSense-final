@@ -23,6 +23,7 @@ public class DriveRatingActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         Trip trp = (Trip) intent.getSerializableExtra("Current Trip");
+
         //***** Add trp to DB *****
 
         Toolbar ratingToolbar = (Toolbar) findViewById(R.id.tool_bar_rating);
