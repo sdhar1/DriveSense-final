@@ -34,7 +34,7 @@ public class Rating {
         double time = trace.time - lastTrace_.time;
         double a = (curSpeed - lastSpeed_)/(time/1000.0);
         if(a < -2.5) {
-            
+
             return -1;
         }
         return 0;

@@ -1,14 +1,12 @@
 
 package wisc.drivesense.activity;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -18,21 +16,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
-
-import java.io.File;
 
 import wisc.drivesense.R;
 import wisc.drivesense.rating.Rating;
 import wisc.drivesense.sensor.SensorService;
 import wisc.drivesense.sensor.SensorServiceConnection;
 import wisc.drivesense.database.DatabaseHelper;
-import wisc.drivesense.uploader.UploaderService;
-import wisc.drivesense.uploader.UploaderServiceConnection;
 import wisc.drivesense.utility.Trace;
 import wisc.drivesense.utility.Trip;
 
@@ -54,8 +46,6 @@ public class MainActivity extends AppCompatActivity {
     private static Intent mSensorIntent = null;
     private static SensorServiceConnection mSensorServiceConnection = null;
 
-    private static Intent mUploaderIntent = null;
-    private static UploaderServiceConnection mUploaderServiceConnection = null;
 
     private static String TAG = "MainActivity";
 
@@ -169,14 +159,6 @@ public class MainActivity extends AppCompatActivity {
         bindService(mSensorIntent, mSensorServiceConnection, Context.BIND_AUTO_CREATE);
         startService(mSensorIntent);
 
-
-        /*
-        mUploaderIntent = new Intent(this, UploaderService.class);
-        mUploaderServiceConnection = new UploaderServiceConnection(dbHelper_);
-        Log.d(TAG, "Binding uploader service..");
-        bindService(mUploaderIntent, mUploaderServiceConnection, Context.BIND_AUTO_CREATE);
-        startService(mUploaderIntent);
-        */
     }
 
 
@@ -198,16 +180,6 @@ public class MainActivity extends AppCompatActivity {
             mSensorIntent = null;
             mSensorServiceConnection = null;
         }
-
-        /*
-        if (mUploaderServiceConnection != null && mUploaderServiceConnection.isRunning()) {
-            Log.d(TAG, "stop sensor servcie");
-            unbindService(mUploaderServiceConnection);
-            stopService(mUploaderIntent);
-            mUploaderIntent = null;
-            mUploaderServiceConnection = null;
-        }
-        */
     }
 
     /**

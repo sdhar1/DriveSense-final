@@ -68,6 +68,7 @@ public class UploaderService extends Service {
         Log.d(TAG, "Starting uploding service");
         isRunning_.set(true);
 
+        /*
         String time = "summary";
         String url = "http://128.105.22.44:8000/upload";
         String devid = "id";
@@ -75,10 +76,8 @@ public class UploaderService extends Service {
         SendHttpRequestTask t = new SendHttpRequestTask();
         String[] params = new String[]{url, devid, dbname};
         t.execute(params);
-
-
         Log.d(TAG, String.valueOf(t.getStatus() == AsyncTask.Status.FINISHED));
-
+        */
     }
 
 
