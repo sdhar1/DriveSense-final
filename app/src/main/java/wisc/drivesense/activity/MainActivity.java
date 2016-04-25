@@ -20,11 +20,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+
 import wisc.drivesense.R;
 import wisc.drivesense.rating.Rating;
 import wisc.drivesense.sensor.SensorService;
 import wisc.drivesense.sensor.SensorServiceConnection;
 import wisc.drivesense.database.DatabaseHelper;
+import wisc.drivesense.utility.Constants;
 import wisc.drivesense.utility.Trace;
 import wisc.drivesense.utility.Trip;
 
@@ -32,11 +35,6 @@ import wisc.drivesense.utility.Trip;
 public class MainActivity extends AppCompatActivity {
 
 
-    private Spinner spinnerOn, spinnerOff;
-    private Button btnSubmit, btnSet;
-    private EditText total;
-
-    private TextView txtSpeed;
     private static DatabaseHelper dbHelper_;
     private Trip curtrip_;
     private int started = 0;
@@ -60,7 +58,16 @@ public class MainActivity extends AppCompatActivity {
         android.support.v7.widget.Toolbar mToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.maintoolbar);
         setSupportActionBar(mToolbar);
 
-        dbHelper_ = new DatabaseHelper(this);
+
+
+        //File dir = this.getFilesDir();
+
+        File dbDir = new File(Constants.kDBFolder);
+        if (!dbDir.exists()) {
+            dbDir.mkdirs();
+        }
+
+        dbHelper_ = new DatabaseHelper();
         curtrip_ = new Trip();
 
         addListenerOnButton();
@@ -203,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "Got message: " + trace.toJson());
 
             TextView tvSpeed = (TextView) findViewById(R.id.textspeed);
-            if(mSensorServiceConnection.isRunning()) {
+            if(mSensorServiceConnection != null && mSensorServiceConnection.isRunning()) {
                 tvSpeed.setText(String.valueOf(mSensorServiceConnection.getSpeed()));
             }
 

@@ -1,30 +1,23 @@
 package wisc.drivesense.uploader;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.os.Binder;
-import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import wisc.drivesense.database.DatabaseHelper;
+import wisc.drivesense.utility.Constants;
 
 /**
  * Created by lkang on 3/30/16.
@@ -33,11 +26,12 @@ public class UploaderService extends Service {
 
     private static String TAG = "uploader";
     //doing nothing at this version
-    private DatabaseHelper dbHelper_ = null;
+    private DatabaseHelper dbHelper_ = new DatabaseHelper();
 
-    private final Binder binder_ = new UploaderBinder();
     private AtomicBoolean isRunning_ = new AtomicBoolean(false);
 
+
+    private SendHttpRequestTask httpRequest = null;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -68,20 +62,55 @@ public class UploaderService extends Service {
         Log.d(TAG, "Starting uploding service");
         isRunning_.set(true);
 
-        /*
-        String time = "summary";
-        String url = "http://128.105.22.44:8000/upload";
-        String devid = "id";
-        String dbname = time + ".db";
-        SendHttpRequestTask t = new SendHttpRequestTask();
-        String[] params = new String[]{url, devid, dbname};
-        t.execute(params);
-        Log.d(TAG, String.valueOf(t.getStatus() == AsyncTask.Status.FINISHED));
-        */
+        selectAndUploadOneFile(null);
+    }
+
+    private void selectAndUploadOneFile(String pre) {
+
+        String dbname = null;
+        if(pre == null) {
+            //upload summary first
+            dbname = "summary";
+        } else {
+            //upload next trip
+            long time = dbHelper_.nextTripToUpload();
+            if(-1 == time) {
+                stopService();
+                return;
+            }
+            dbname = String.valueOf(time);
+        }
+
+        String androidid = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+        Log.d(TAG, "uploading" + dbname);
+        String[] params = new String[]{Constants.kUploadURL, androidid, dbname};
+
+        httpRequest = new SendHttpRequestTask();
+        httpRequest.execute(params);
+
+        SystemClock.sleep(1000 * 10);
     }
 
 
     private class SendHttpRequestTask extends AsyncTask<String, Void, String> {
+
+        protected void onPostExecute(String result) {
+            Log.d(TAG, "uploading result:" + result);
+            this.cancel(true);
+            if(result == null) {
+                //server is done, retry later
+                stopService();
+                return;
+            }
+            //confirm the trip is uploaded
+            try {
+                long time = Long.parseLong(result);
+                dbHelper_.tripUploadDone(time);
+            } catch (Exception e) {
+                    //uploaded summary istead of trips
+            }
+            selectAndUploadOneFile(result);
+        }
 
         protected String doInBackground(String... params) {
 
@@ -92,7 +121,7 @@ public class UploaderService extends Service {
 
             byte[] byteArray = null;
             try {
-                File dbfile = new File(dbHelper_.DB_PATH + dbname);
+                File dbfile = new File(Constants.kDBFolder + dbname + ".db");
                 long fsz = dbfile.length();
                 InputStream inputStream = new FileInputStream(dbfile);
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -112,42 +141,35 @@ public class UploaderService extends Service {
                 HttpClient client = new HttpClient(url);
                 client.connectForMultipart();
                 client.addFormPart("deviceid", devid);
-                client.addFilePart("file", dbname, byteArray);
+                client.addFilePart("file", dbname + ".db", byteArray);
                 client.finishMultipart();
                 res = client.getResponse();
             } catch(Throwable t) {
                 t.printStackTrace();
+                return null;
             }
-            return res;
+            //expect the server returns an okay package
+            //return a null if not okay
+            if(null != res && res.contains("okay")) {
+                return dbname;
+            } else {
+                return null;
+            }
         }
 
     }
-
-
 
 
     public void stopService() {
         Log.d(TAG, "Stopping service..");
-        //stop service only when car halt
-        isRunning_.set(false);
 
+        if(httpRequest != null && httpRequest.isCancelled() == false) {
+            httpRequest.cancel(true);
+        }
+
+        isRunning_.set(false);
         stopSelf();
 
     }
-
-
-
-    public class UploaderBinder extends Binder {
-        public void setDatabaseHelper(DatabaseHelper dbhelper) {
-            dbHelper_ = dbhelper;
-        }
-        public boolean isRunning() {
-            return isRunning_.get();
-        }
-        public UploaderService getService() {
-            return UploaderService.this;
-        }
-    }
-
 
 }

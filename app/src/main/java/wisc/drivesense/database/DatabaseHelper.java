@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import wisc.drivesense.utility.Constants;
 import wisc.drivesense.utility.Trace;
 import wisc.drivesense.utility.Trip;
 
@@ -22,7 +23,7 @@ public class DatabaseHelper {
     private static SQLiteDatabase meta_ = null;
     private static SQLiteDatabase db_ = null;
 
-    public static String DB_PATH = "/data/data/wisc.drivesense/files/";
+
     //private static String DB_PATH = "/sdcard/databases/";
 
     // Database Version
@@ -71,16 +72,14 @@ public class DatabaseHelper {
 
 
 
-    private Context context = null;
-    private long time = 0;
     private boolean opened = false;
     // public interfaces
-    public DatabaseHelper(Context cont) {
+    public DatabaseHelper() {
 
-        this.context = cont;
+        //this.context = cont;
         //openOrCreateDatabase(DATABASE_NAME, SQLiteDatabase.CREATE_IF_NECESSARY, null);
-        File dir = this.context.getFilesDir();
-        meta_ = SQLiteDatabase.openOrCreateDatabase(dir.toString() + "/" + DATABASE_NAME, null, null);
+        //File dir = this.context.getFilesDir();
+        meta_ = SQLiteDatabase.openOrCreateDatabase(Constants.kDBFolder + DATABASE_NAME, null, null);
         meta_.execSQL(CREATE_TABLE_META);
         //we never close meta_ explicitly, maybe
     }
@@ -88,9 +87,8 @@ public class DatabaseHelper {
 
     //open and close for each trip
     public void createDatabase(long t) {
-        this.time = t;
         this.opened = true;
-        db_ = SQLiteDatabase.openOrCreateDatabase(DB_PATH + String.valueOf(t).concat(".db"), null, null);
+        db_ = SQLiteDatabase.openOrCreateDatabase(Constants.kDBFolder + String.valueOf(t).concat(".db"), null, null);
         db_.execSQL(CREATE_TABLE_ACCELEROMETER);
         db_.execSQL(CREATE_TABLE_GYROSCOPE);
         db_.execSQL(CREATE_TABLE_MAGNETOMETER);
@@ -146,7 +144,7 @@ public class DatabaseHelper {
      * @return a list of trace, or gps points
      */
     public List<Trace> getGPSPoints(long time) {
-        SQLiteDatabase tmpdb = SQLiteDatabase.openDatabase(DB_PATH + String.valueOf(time).concat(".db"), null, SQLiteDatabase.OPEN_READONLY);
+        SQLiteDatabase tmpdb = SQLiteDatabase.openDatabase(Constants.kDBFolder + String.valueOf(time).concat(".db"), null, SQLiteDatabase.OPEN_READONLY);
         List<Trace> res = new ArrayList<Trace>();
         String selectQuery = "SELECT  * FROM " + TABLE_GPS;
         Cursor cursor = tmpdb.rawQuery(selectQuery, null);
@@ -162,15 +160,20 @@ public class DatabaseHelper {
         return res;
     }
 
+
+
+
     /**
      * @brief remove the record of the table, so that the user cannot see it
      * but the file is still in the database
      * @param time
      */
     public void removeTrip(long time) {
+        meta_.beginTransaction();
         ContentValues data = new ContentValues();
         data.put("deleted", 1);
-        meta_.update(TABLE_META, data, "tripid=" + time, null);
+        meta_.update(TABLE_META, data, "starttime = " + time, null);
+        meta_.endTransaction();
     }
 
     /**
@@ -178,7 +181,7 @@ public class DatabaseHelper {
      * @param time
      */
     public void deleteTrip(long time) {
-        SQLiteDatabase.deleteDatabase(new File(DB_PATH + String.valueOf(time).concat(".db")));
+        SQLiteDatabase.deleteDatabase(new File(Constants.kDBFolder + String.valueOf(time).concat(".db")));
     }
 
     public List<Trip> showTrips() {
@@ -203,6 +206,36 @@ public class DatabaseHelper {
         } while (cursor.moveToNext());
         return trips;
     }
+
+
+    /**
+     * all about uploading
+     */
+    public long nextTripToUpload() {
+        String selectQuery = "SELECT  * FROM " + TABLE_META + " WHERE uploaded = 0;";
+        Cursor cursor = meta_.rawQuery(selectQuery, null);
+        cursor.moveToFirst();
+        long stime = -1;
+        do {
+            if(cursor.getCount() == 0) {
+                break;
+            }
+            stime = cursor.getLong(0);
+            break;
+        } while (cursor.moveToNext());
+        return stime;
+    }
+
+
+    public void tripUploadDone(long time) {
+        meta_.beginTransaction();
+        ContentValues data = new ContentValues();
+        data.put("uploaded", 1);
+        meta_.update(TABLE_META, data, "starttime=" + time, null);
+        meta_.endTransaction();
+    }
+
+
 
 
 }
