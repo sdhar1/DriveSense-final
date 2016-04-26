@@ -41,7 +41,7 @@ public class Trip implements Serializable {
         return this.endTime_;
     }
     public double getDistance() {
-        return this.distance_;
+        return this.distance_ * Constants.kMeterToMile;
     }
     public void addGPS(Trace trace) {
         gps_.add(trace);

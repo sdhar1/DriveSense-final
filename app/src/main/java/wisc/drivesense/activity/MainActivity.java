@@ -92,29 +92,28 @@ public class MainActivity extends AppCompatActivity {
     public void addListenerOnButton() {
 
         final Button btnStart = (Button) findViewById(R.id.btnstart);
-        final TextView txtView= (TextView) findViewById(R.id.textspeed);
+        //final TextView txtView= (TextView) findViewById(R.id.textspeed);
         btnStart.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 if (started == 0) {
-                    Toast.makeText(MainActivity.this, "Service Started!", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MainActivity.this, "Service Started!", Toast.LENGTH_SHORT).show();
                     startRunning();
                     started = 1;
-                    txtView.setText("0"); // speed variable to be displayed here instead of 0
-                    txtView.setTextSize(50);
+                    //txtView.setText("0"); // speed variable to be displayed here instead of 0
+                    //txtView.setTextSize(50);
                     btnStart.setBackgroundResource(R.drawable.stop_button);
                     btnStart.setText(R.string.stop_button);
                 } else {
-                    Toast.makeText(MainActivity.this, "Service Stopped!", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MainActivity.this, "Service Stopped!", Toast.LENGTH_SHORT).show();
                     stopRunning();
                     started = 0;
-                    txtView.setText(R.string.pressButton); // speed variable to be displayed here instead of 0
-                    txtView.setTextSize(20);
+                    //txtView.setText(R.string.pressButton); // speed variable to be displayed here instead of 0
+                    //txtView.setTextSize(20);
                     btnStart.setBackgroundResource(R.drawable.start_button);
                     btnStart.setText(R.string.start_button);
                     showDriveRating(curtrip_);
-
                 }
             }
         });
@@ -209,6 +208,7 @@ public class MainActivity extends AppCompatActivity {
             }
             Log.d(TAG, "Got message: " + trace.toJson());
 
+            //UI
             TextView tvSpeed = (TextView) findViewById(R.id.textspeed);
             if(mSensorServiceConnection != null && mSensorServiceConnection.isRunning()) {
                 tvSpeed.setText(String.valueOf(mSensorServiceConnection.getSpeed()));

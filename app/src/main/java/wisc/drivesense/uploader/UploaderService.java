@@ -62,7 +62,7 @@ public class UploaderService extends Service {
         Log.d(TAG, "Starting uploding service");
         isRunning_.set(true);
 
-        selectAndUploadOneFile(null);
+        selectAndUploadOneFile(/*null*/"do not upload summary");
     }
 
     private void selectAndUploadOneFile(String pre) {
