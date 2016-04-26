@@ -60,8 +60,8 @@
         style="@style/textStyle"
         android:id="@+id/miles"
         android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/textspeed"
-        android:layout_toEndOf="@+id/textspeed"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="26dp"
         android:layout_marginBottom="26dp" />
 
 
