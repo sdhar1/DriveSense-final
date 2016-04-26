@@ -3,13 +3,13 @@ package wisc.drivesense.uploader;
 /**
  * Created by lkang on 4/14/16.
  */
-import java.io.ByteArrayOutputStream;
+
+import android.util.Log;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-import android.util.Log;
 
 public class HttpClient {
     private String url;

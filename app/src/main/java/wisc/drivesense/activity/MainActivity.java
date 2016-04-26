@@ -15,18 +15,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
 
 import wisc.drivesense.R;
+import wisc.drivesense.database.DatabaseHelper;
 import wisc.drivesense.rating.Rating;
 import wisc.drivesense.sensor.SensorService;
 import wisc.drivesense.sensor.SensorServiceConnection;
-import wisc.drivesense.database.DatabaseHelper;
 import wisc.drivesense.utility.Constants;
 import wisc.drivesense.utility.Trace;
 import wisc.drivesense.utility.Trip;
@@ -120,10 +117,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showDriveRating(Trip curtrip) {
+    /*
         Intent intent = new Intent(this, DriveRatingActivity.class);
         intent.putExtra("Current Trip", curtrip_);
+
         startActivity(intent);
+        */
+        Intent intent = new Intent(this, MapActivity.class);
+        intent.putExtra("Current Trip", curtrip_);
+        startActivity(intent);
+
     }
+
+
+
+
+
     public void showHistory() {
         Intent intent = new Intent(this, HistoryActivity.class);
         startActivity(intent);

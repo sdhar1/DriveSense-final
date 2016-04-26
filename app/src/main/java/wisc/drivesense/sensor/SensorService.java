@@ -1,6 +1,4 @@
 package wisc.drivesense.sensor;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 
 import android.app.Service;
 import android.content.Context;
@@ -18,8 +16,10 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import wisc.drivesense.utility.Trace;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import wisc.drivesense.database.DatabaseHelper;
+import wisc.drivesense.utility.Trace;
 
 public class SensorService extends Service implements SensorEventListener, LocationListener {
 
