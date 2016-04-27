@@ -1,17 +1,30 @@
 package wisc.drivesense.activity;
 
+import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import wisc.drivesense.R;
+import java.util.List;
 
-public class HistoryActivity extends AppCompatActivity {
+import wisc.drivesense.R;
+import wisc.drivesense.database.DatabaseHelper;
+import wisc.drivesense.utility.Trip;
+
+public class HistoryActivity extends Activity {
+
+    private final String TAG = "HistoryActivity";
+
+    private DatabaseHelper dbHelper_ = new DatabaseHelper();
+
+    private ArrayAdapter<Trip> adapter_ = null;
+    List<Trip> trips_ = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,38 +41,52 @@ public class HistoryActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+
+
         ListView listView = (ListView)findViewById(R.id.listView);
-        //*****To be replaced by list of trips*****
-        String[] trips= {"trip1","trip2","trip3","trip4","trip5","trip6"};
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,trips);
-        listView.setAdapter(adapter);
+
+        trips_ = dbHelper_.loadTrips();
+        adapter_ = new TripAdapter(this, trips_);
+        listView.setAdapter(adapter_);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d(TAG, view.toString() + ";" + position + ";" + id);
+
+                Trip trip = adapter_.getItem(position);
+                Intent intent = new Intent(HistoryActivity.this, MapActivity.class);
+                intent.putExtra("Current Trip", trip);
+                startActivity(intent);
+            }
+
+        });
+
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                Log.d(TAG, view.toString() + ";" + position + ";" + id);
+                AlertDialog.Builder showPlace = new AlertDialog.Builder(HistoryActivity.this);
+                showPlace.setMessage("Remove this trip?");
+                showPlace.setPositiveButton("DELETE", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int pos) {
+                        Log.d(TAG, "delete:" + position);
+                        Trip trip = adapter_.getItem(position);
+                        dbHelper_.removeTrip(trip.getStartTime());
+                        adapter_.remove(trip);
+                    }
+                });
+                showPlace.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.d(TAG, "cancel");
+                    }
+                });
+                showPlace.show();
+                return true;
+            }
+        });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.basic_menu, menu);
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.settings:
-
-                return true;
-
-            case R.id.home:
-                this.finish();
-                return true;
-            case R.id.about:
-                return true;
-            default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
-                return super.onOptionsItemSelected(item);
-
-        }
-    }
 }

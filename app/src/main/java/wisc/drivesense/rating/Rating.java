@@ -1,6 +1,5 @@
 package wisc.drivesense.rating;
 
-import wisc.drivesense.utility.Constants;
 import wisc.drivesense.utility.Trace;
 import wisc.drivesense.utility.Trip;
 

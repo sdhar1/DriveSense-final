@@ -150,6 +150,9 @@ public class DatabaseHelper {
         Cursor cursor = tmpdb.rawQuery(selectQuery, null);
         cursor.moveToFirst();
         do {
+            if(cursor.getCount() == 0) {
+                break;
+            }
             Trace trace = new Trace();
             trace.time = cursor.getLong(0);
             for(int i = 0; i < 3; ++i) {
@@ -174,6 +177,9 @@ public class DatabaseHelper {
         String where = "starttime = ? ";
         String[] whereArgs = {String.valueOf(time)};
         meta_.update(TABLE_META, data, where, whereArgs);
+
+        //we also delete the trip
+        //deleteTrip(time);
     }
 
     /**
@@ -184,12 +190,15 @@ public class DatabaseHelper {
         SQLiteDatabase.deleteDatabase(new File(Constants.kDBFolder + String.valueOf(time).concat(".db")));
     }
 
-    public List<Trip> showTrips() {
+    public List<Trip> loadTrips() {
         List<Trip> trips = new ArrayList<Trip>();
-        String selectQuery = "SELECT  * FROM " + TABLE_GPS;
+        String selectQuery = "SELECT  * FROM " + TABLE_META;
         Cursor cursor = meta_.rawQuery(selectQuery, null);
         cursor.moveToFirst();
         do {
+            if(cursor.getCount() == 0) {
+                break;
+            }
             long stime = cursor.getLong(0);
             long etime = cursor.getLong(1);
             double dist = cursor.getDouble(2);
@@ -197,10 +206,7 @@ public class DatabaseHelper {
             if(deleted == 1) {
                 continue;
             }
-            Trip trip = new Trip();
-            trip.setStartTime(stime);
-            trip.setEndTime(etime);
-            trip.setDistance(dist);
+            Trip trip = new Trip(stime);
             trip.setGPSPoints(this.getGPSPoints(stime));
             trips.add(trip);
         } while (cursor.moveToNext());

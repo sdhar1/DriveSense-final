@@ -20,18 +20,9 @@ public class Trip implements Serializable {
 
     //private DatabaseHelper dbHelper_ = null;
 
-    public Trip () {
+    public Trip (long time) {
         gps_ = new ArrayList<Trace>();
-    }
-
-    public void setStartTime(long time) {
         this.startTime_ = time;
-    }
-    public void setEndTime(long time) {
-        this.endTime_ = time;
-    }
-    public void setDistance(double dist) {
-        this.distance_ = dist;
     }
 
     public void setScore(double score) {this.score_ = score;}
@@ -47,6 +38,7 @@ public class Trip implements Serializable {
         return this.distance_ * Constants.kMeterToMile;
     }
     public double getScore() {return this.score_;}
+    public long getDuration() {return this.endTime_ - this.startTime_;}
 
     public Trace getStartPoint() {return start_;}
     public Trace getEndPoint() {return dest_;}
@@ -60,6 +52,8 @@ public class Trip implements Serializable {
         }
         dest_.copyTrace(trace);
         speed_ = trace.values[2];
+        this.endTime_ = trace.time;
+
         int sz = gps_.size();
         if(sz >= 2) {
             distance_ += distance(gps_.get(sz - 2), gps_.get(sz - 1));
@@ -68,7 +62,9 @@ public class Trip implements Serializable {
 
 
     public void setGPSPoints(List<Trace> gps) {
-        this.gps_ = gps;
+        for(int i = 0; i < gps.size(); ++i) {
+            this.addGPS(gps.get(i));
+        }
     }
     public List<Trace> getGPSPoints() {
         return gps_;

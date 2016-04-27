@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
@@ -59,10 +58,7 @@ public class MainActivity extends AppCompatActivity {
         if (!dbDir.exists()) {
             dbDir.mkdirs();
         }
-
         dbHelper_ = new DatabaseHelper();
-        curtrip_ = new Trip();
-
         addListenerOnButton();
     }
 
@@ -148,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
         long time = System.currentTimeMillis();
         dbHelper_.createDatabase(time);
-        curtrip_.setStartTime(time);
+        curtrip_ = new Trip(time);
         rating = new Rating(curtrip_);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("sensor"));
@@ -167,9 +163,9 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Stopping live data..");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
 
-
-        curtrip_.setEndTime(System.currentTimeMillis());
-        dbHelper_.insertTrip(curtrip_);
+        if(curtrip_.getDistance() >= 0.5 && curtrip_.getDuration() >= 2.0) {
+            dbHelper_.insertTrip(curtrip_);
+        }
         dbHelper_.closeDatabase();
 
 
