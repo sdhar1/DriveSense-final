@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
     /////////////
     private static Intent mSensorIntent = null;
+    //dumb service connection, almost useless, use local broadcast receiver instead
     private static SensorServiceConnection mSensorServiceConnection = null;
 
 
@@ -49,15 +50,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
         setContentView(R.layout.activity_main);
         android.support.v7.widget.Toolbar mToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.maintoolbar);
         setSupportActionBar(mToolbar);
 
-
-
-        //File dir = this.getFilesDir();
 
         File dbDir = new File(Constants.kDBFolder);
         if (!dbDir.exists()) {
@@ -76,9 +72,9 @@ public class MainActivity extends AppCompatActivity {
         inflater.inflate(R.menu.main_menu, menu);
 
         //Setting custom font for TextViews
-        TextView setfont=(TextView)findViewById(R.id.textspeed);
-        Typeface DriveSenseFont=Typeface.createFromAsset(getAssets(), "fonts/JosefinSans-Light.ttf");
-        setfont.setTypeface(DriveSenseFont);
+        //TextView setfont=(TextView)findViewById(R.id.textspeed);
+        //Typeface DriveSenseFont=Typeface.createFromAsset(getAssets(), "fonts/JosefinSans-Light.ttf");
+        //setfont.setTypeface(DriveSenseFont);
 //        ImageView imageViewIcon = (ImageView)findViewById(R.id.imageView);
 //        imageViewIcon.setColorFilter(getContext().getResources().getColor(R.color.primary_dark_material_dark));
 
@@ -98,16 +94,12 @@ public class MainActivity extends AppCompatActivity {
                     //Toast.makeText(MainActivity.this, "Service Started!", Toast.LENGTH_SHORT).show();
                     startRunning();
                     started = 1;
-                    //txtView.setText("0"); // speed variable to be displayed here instead of 0
-                    //txtView.setTextSize(50);
                     btnStart.setBackgroundResource(R.drawable.stop_button);
                     btnStart.setText(R.string.stop_button);
                 } else {
                     //Toast.makeText(MainActivity.this, "Service Stopped!", Toast.LENGTH_SHORT).show();
                     stopRunning();
                     started = 0;
-                    //txtView.setText(R.string.pressButton); // speed variable to be displayed here instead of 0
-                    //txtView.setTextSize(20);
                     btnStart.setBackgroundResource(R.drawable.start_button);
                     btnStart.setText(R.string.start_button);
                     showDriveRating(curtrip_);
@@ -116,17 +108,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void showDriveRating(Trip curtrip) {
-    /*
-        Intent intent = new Intent(this, DriveRatingActivity.class);
-        intent.putExtra("Current Trip", curtrip_);
-
-        startActivity(intent);
-        */
+    public void showDriveRating(Trip trip) {
         Intent intent = new Intent(this, MapActivity.class);
-        intent.putExtra("Current Trip", curtrip_);
+        intent.putExtra("Current Trip", trip);
         startActivity(intent);
-
     }
 
 
@@ -219,9 +204,9 @@ public class MainActivity extends AppCompatActivity {
 
             //UI
             TextView tvSpeed = (TextView) findViewById(R.id.textspeed);
-            if(mSensorServiceConnection != null && mSensorServiceConnection.isRunning()) {
-                tvSpeed.setText(String.valueOf(mSensorServiceConnection.getSpeed()));
-            }
+            TextView tvMiles = (TextView) findViewById(R.id.milesdriven);
+            tvSpeed.setText(String.valueOf(curtrip_.getSpeed()));
+            tvMiles.setText(String.valueOf(curtrip_.getDistance()));
 
         }
     };

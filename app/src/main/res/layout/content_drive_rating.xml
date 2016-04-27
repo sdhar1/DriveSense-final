@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="0.0"
-        android:id="@+id/textView2"
+        android:id="@+id/rating"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:textSize="100sp"
@@ -28,8 +28,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Your Rating (out of 10.0):"
-        android:id="@+id/textView3"
-        android:layout_above="@+id/textView2"
+        android:layout_above="@id/rating"
         android:layout_centerHorizontal="true"
         android:textSize="20sp" />
 </RelativeLayout>

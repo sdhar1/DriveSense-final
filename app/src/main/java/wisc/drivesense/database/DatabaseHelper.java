@@ -4,6 +4,7 @@ package wisc.drivesense.database;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -168,11 +169,11 @@ public class DatabaseHelper {
      * @param time
      */
     public void removeTrip(long time) {
-        meta_.beginTransaction();
         ContentValues data = new ContentValues();
         data.put("deleted", 1);
-        meta_.update(TABLE_META, data, "starttime = " + time, null);
-        meta_.endTransaction();
+        String where = "starttime = ? ";
+        String[] whereArgs = {String.valueOf(time)};
+        meta_.update(TABLE_META, data, where, whereArgs);
     }
 
     /**
@@ -227,11 +228,12 @@ public class DatabaseHelper {
 
 
     public void tripUploadDone(long time) {
-        meta_.beginTransaction();
+        Log.d(TAG, "tripUploadDone");
         ContentValues data = new ContentValues();
         data.put("uploaded", 1);
-        meta_.update(TABLE_META, data, "starttime=" + time, null);
-        meta_.endTransaction();
+        String where = "starttime = ? ";
+        String[] whereArgs = {String.valueOf(time)};
+        meta_.update(TABLE_META, data, where, whereArgs);
     }
 
 

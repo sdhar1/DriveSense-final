@@ -46,10 +46,6 @@
             android:enabled="true"
             android:exported="false" />
 
-        <activity
-            android:name=".activity.DriveRatingActivity"
-            android:label="@string/title_activity_drive_rating"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity android:name=".activity.HistoryActivity" />
 
         <receiver

@@ -12,8 +12,11 @@ public class Trip implements Serializable {
     private long startTime_ = 0;
     private long endTime_ = 0;
     private double distance_ = 0; // in miles
-    private int score = 100;
+    private double speed_ = 0.0;
+    private double score_ = 10.0;
     private List<Trace> gps_;
+    private Trace start_ = null;
+    private Trace dest_ = new Trace();
 
     //private DatabaseHelper dbHelper_ = null;
 
@@ -31,6 +34,8 @@ public class Trip implements Serializable {
         this.distance_ = dist;
     }
 
+    public void setScore(double score) {this.score_ = score;}
+
 
     public long getStartTime() {
         return this.startTime_;
@@ -41,8 +46,20 @@ public class Trip implements Serializable {
     public double getDistance() {
         return this.distance_ * Constants.kMeterToMile;
     }
+    public double getScore() {return this.score_;}
+
+    public Trace getStartPoint() {return start_;}
+    public Trace getEndPoint() {return dest_;}
+    public double getSpeed() {return speed_;}
+
     public void addGPS(Trace trace) {
         gps_.add(trace);
+        if(start_ == null) {
+            start_ = new Trace();
+            start_.copyTrace(trace);
+        }
+        dest_.copyTrace(trace);
+        speed_ = trace.values[2];
         int sz = gps_.size();
         if(sz >= 2) {
             distance_ += distance(gps_.get(sz - 2), gps_.get(sz - 1));
@@ -59,7 +76,7 @@ public class Trip implements Serializable {
 
 
 
-    private static double distance(Trace gps0, Trace gps1) {
+    public static double distance(Trace gps0, Trace gps1) {
 
         double lat1 = Math.toRadians(gps0.values[0]);
         double lng1 = Math.toRadians(gps0.values[1]);

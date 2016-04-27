@@ -45,14 +45,14 @@ public class UploaderService extends Service {
 
     @Override
     public void onDestroy() {
-        Toast.makeText(this, TAG + " onDestroy", Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, TAG + " onDestroy", Toast.LENGTH_LONG).show();
         stopService();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "Received start id " + startId + ": " + intent);
-        Toast.makeText(this, TAG + " onStartCommand", Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, TAG + " onStartCommand", Toast.LENGTH_LONG).show();
 
         startService();
         return START_STICKY;
@@ -96,7 +96,6 @@ public class UploaderService extends Service {
 
         protected void onPostExecute(String result) {
             Log.d(TAG, "uploading result:" + result);
-            this.cancel(true);
             if(result == null) {
                 //server is done, retry later
                 stopService();
@@ -108,7 +107,9 @@ public class UploaderService extends Service {
                 dbHelper_.tripUploadDone(time);
             } catch (Exception e) {
                     //uploaded summary istead of trips
+                Log.d(TAG, e.toString());
             }
+            this.cancel(true);
             selectAndUploadOneFile(result);
         }
 
