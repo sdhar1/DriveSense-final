@@ -190,19 +190,20 @@ public class MainActivity extends AppCompatActivity {
             if(dbHelper_.isOpen()) {
                 dbHelper_.insertSensorData(trace);
             }
-            if(trace.type == Trace.GPS) {
+            if(trace.type.compareTo(Trace.GPS) == 0) {
+                Log.d(TAG, "Got message: " + trace.toJson());
                 curtrip_.addGPS(trace);
+                //UI
+                TextView tvSpeed = (TextView) findViewById(R.id.textspeed);
+                TextView tvMiles = (TextView) findViewById(R.id.milesdriven);
+                tvSpeed.setText(String.valueOf(curtrip_.getSpeed()));
+                tvMiles.setText(String.valueOf(curtrip_.getDistance()));
             }
             if(rating != null) {
                 rating.readingData(trace);
             }
-            Log.d(TAG, "Got message: " + trace.toJson());
 
-            //UI
-            TextView tvSpeed = (TextView) findViewById(R.id.textspeed);
-            TextView tvMiles = (TextView) findViewById(R.id.milesdriven);
-            tvSpeed.setText(String.valueOf(curtrip_.getSpeed()));
-            tvMiles.setText(String.valueOf(curtrip_.getDistance()));
+
 
         }
     };

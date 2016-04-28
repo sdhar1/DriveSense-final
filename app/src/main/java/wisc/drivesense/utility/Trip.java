@@ -42,7 +42,7 @@ public class Trip implements Serializable {
 
     public Trace getStartPoint() {return start_;}
     public Trace getEndPoint() {return dest_;}
-    public double getSpeed() {return speed_;}
+    public double getSpeed() {return speed_ * Constants.kMeterPSToMilePH;}
 
     public void addGPS(Trace trace) {
         gps_.add(trace);
