@@ -72,6 +72,7 @@ public class SensorService extends Service implements SensorEventListener, Locat
             trace.values[0] = (float) location.getLatitude();
             trace.values[1] = (float) location.getLongitude();
             trace.values[2] = location.getSpeed();
+            trace.type = Trace.GPS;
 
             sendTrace(trace);
         }
