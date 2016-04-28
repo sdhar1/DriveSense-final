@@ -29,7 +29,7 @@
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyBxY4N4dZYeojgrIIzkQU0I1e3YX4aSvRU" />
 
-        <activity android:name=".activity.MainActivity">
+        <activity android:name=".activity.MainActivity" android:configChanges="orientation|screenSize|keyboardHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

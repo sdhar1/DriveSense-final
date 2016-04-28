@@ -9,8 +9,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="wisc.drivesense.activity.DriveRatingActivity"
-    tools:showIn="@layout/activity_drive_rating">
+    tools:showIn="@layout/activity_map">
 
     <TextView
         android:layout_width="wrap_content"
@@ -20,7 +19,7 @@
         android:id="@+id/rating"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:textSize="100sp"
+        android:textSize="60sp"
         android:textAlignment="center" />
 
     <TextView
@@ -30,5 +29,5 @@
         android:text="Your Rating (out of 10.0):"
         android:layout_above="@id/rating"
         android:layout_centerHorizontal="true"
-        android:textSize="20sp" />
+        android:textSize="15sp" />
 </RelativeLayout>

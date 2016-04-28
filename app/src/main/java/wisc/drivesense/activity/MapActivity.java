@@ -65,7 +65,7 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
 
         LatLng destination;
         if(trip.getGPSPoints().size() >= 2) {
-            destination = new LatLng(trip.getEndPoint().values[0], trip.getEndPoint().values[0]);
+            destination = new LatLng(trip.getEndPoint().values[0], trip.getEndPoint().values[1]);
         } else {
             destination = madison;
         }
