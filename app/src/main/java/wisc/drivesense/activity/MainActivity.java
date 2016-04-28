@@ -196,8 +196,8 @@ public class MainActivity extends AppCompatActivity {
                 //UI
                 TextView tvSpeed = (TextView) findViewById(R.id.textspeed);
                 TextView tvMiles = (TextView) findViewById(R.id.milesdriven);
-                tvSpeed.setText(String.valueOf(curtrip_.getSpeed()));
-                tvMiles.setText(String.valueOf(curtrip_.getDistance()));
+                tvSpeed.setText(String.format("%.1f", curtrip_.getSpeed()));
+                tvMiles.setText(String.format("%.1f", curtrip_.getDistance()));
             }
             if(rating != null) {
                 rating.readingData(trace);
