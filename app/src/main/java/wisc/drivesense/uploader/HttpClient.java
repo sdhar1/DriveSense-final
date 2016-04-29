@@ -68,7 +68,6 @@ public class HttpClient {
             os.write((delimiter + boundary + "\r\n").getBytes());
             os.write("Content-Type: text/plain\r\n".getBytes());
             os.write(("Content-Disposition: form-data; name=\"" + paramName + "\"\r\n").getBytes());
-            ;
             os.write(("\r\n" + value + "\r\n").getBytes());
             return true;
         } catch (Exception e) {

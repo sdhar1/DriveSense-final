@@ -7,12 +7,15 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
@@ -84,11 +87,19 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
 
 
     private void plotRoute(GoogleMap map) {
+
         List<Trace> gps = trip.getGPSPoints();
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
         for (int i = 0; i < gps.size(); i++) {
             Trace point = gps.get(i);
-            map.addMarker(new MarkerOptions().position(new LatLng(point.values[0], point.values[1])));
+            Marker marker = map.addMarker(new MarkerOptions().position(new LatLng(point.values[0], point.values[1])));
+            builder.include(marker.getPosition());
         }
+        LatLngBounds bounds = builder.build();
+        int padding = 0;
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+        //map.moveCamera(cu);
+        map.animateCamera(cu);
     }
 
 }
