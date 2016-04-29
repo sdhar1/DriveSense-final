@@ -86,20 +86,25 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
     }
 
 
-    private void plotRoute(GoogleMap map) {
+    private void plotRoute(final GoogleMap map) {
 
         List<Trace> gps = trip.getGPSPoints();
+        int sz = gps.size();
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         for (int i = 0; i < gps.size(); i++) {
             Trace point = gps.get(i);
             Marker marker = map.addMarker(new MarkerOptions().position(new LatLng(point.values[0], point.values[1])));
             builder.include(marker.getPosition());
         }
-        LatLngBounds bounds = builder.build();
-        int padding = 0;
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-        //map.moveCamera(cu);
-        map.animateCamera(cu);
+        final LatLngBounds bounds = builder.build();
+        map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            public void onMapLoaded() {
+                int padding = 100;
+                map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
+            }
+        });
     }
-
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 }
