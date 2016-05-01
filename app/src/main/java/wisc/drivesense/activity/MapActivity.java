@@ -19,6 +19,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -26,6 +27,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import wisc.drivesense.R;
@@ -97,30 +99,55 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
     }
 
 
+    private List<BitmapDescriptor> producePoints(int [] colors) {
+        List<BitmapDescriptor> res = new ArrayList<BitmapDescriptor>();
+        int width = 10, height = 10;
+
+        for(int i = 0; i < colors.length; ++i) {
+            Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bmp);
+            Paint paint = new Paint();
+            paint.setColor(colors[i]);
+            paint.setStyle(Paint.Style.FILL);
+            canvas.drawCircle(width / 2, height / 2, 5, paint);
+
+            BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(bmp);
+            res.add(bitmapDescriptor);
+        }
+        return res;
+    }
+
+
     private void plotRoute(final GoogleMap map) {
 
         List<Trace> gps = trip_.getGPSPoints();
+        int sz = gps.size();
+
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        int [] colors = {Color.GREEN, Color.BLUE, Color.YELLOW, Color.RED};
+        List<BitmapDescriptor> bitmapDescriptors = producePoints(colors);
 
-
-        Bitmap bmp = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bmp);
-
-        Paint paint = new Paint();
-        paint.setColor(0xFFFF0000);
-        paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        paint.setStrokeWidth(4.5f);
-        canvas.drawCircle(50, 50, 30, paint);
-
-
-
-        for (int i = 0; i < gps.size(); i++) {
+        // plot the route on the google map
+        for (int i = 0; i < sz; i++) {
             Trace point = gps.get(i);
-            //.icon(BitmapDescriptorFactory.fromResource(R.drawable.buttondefault)
-            MarkerOptions markerOptions = new MarkerOptions().position(new LatLng(point.values[0], point.values[1])).icon(BitmapDescriptorFactory.fromBitmap(bmp));
+            double speed = point.values[2];
+            BitmapDescriptor bitmapDescriptor = bitmapDescriptors.get(Math.min((int)(speed/5.0), colors.length - 1));
+
+            MarkerOptions markerOptions = new MarkerOptions().position(new LatLng(point.values[0], point.values[1])).icon(bitmapDescriptor);
             Marker marker = map.addMarker(markerOptions);
             builder.include(marker.getPosition());
         }
+
+        // market the starting and ending points
+        LatLng start = new LatLng(trip_.getStartPoint().values[0], trip_.getStartPoint().values[1]);
+        MarkerOptions startOptions = new MarkerOptions().position(start).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_car));
+        map.addMarker(startOptions);
+        LatLng end = new LatLng(trip_.getEndPoint().values[0], trip_.getEndPoint().values[1]);
+        MarkerOptions endOptions = new MarkerOptions().position(end);
+        map.addMarker(endOptions);
+
+
+        // zoom the map to cover the whole trip
         final LatLngBounds bounds = builder.build();
         map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             public void onMapLoaded() {

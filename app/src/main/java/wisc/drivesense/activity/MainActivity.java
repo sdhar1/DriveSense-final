@@ -30,7 +30,6 @@ import wisc.drivesense.utility.Trip;
 
 public class MainActivity extends AppCompatActivity {
 
-
     private static DatabaseHelper dbHelper_;
     private Trip curtrip_;
     private int started = 0;
@@ -41,15 +40,19 @@ public class MainActivity extends AppCompatActivity {
     //dumb service connection, almost useless, use local broadcast receiver instead
     private static SensorServiceConnection mSensorServiceConnection = null;
 
-
     private static String TAG = "MainActivity";
+
+    private TextView tvSpeed = null;
+    private TextView tvMiles = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        setContentView(R.layout.activity_main);
+        tvSpeed = (TextView) findViewById(R.id.textspeed);
+        tvMiles = (TextView) findViewById(R.id.milesdriven);
+
         android.support.v7.widget.Toolbar mToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.maintoolbar);
         setSupportActionBar(mToolbar);
 
@@ -66,13 +69,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
-
-        //Setting custom font for TextViews
-        //TextView setfont=(TextView)findViewById(R.id.textspeed);
-        //Typeface DriveSenseFont=Typeface.createFromAsset(getAssets(), "fonts/JosefinSans-Light.ttf");
-        //setfont.setTypeface(DriveSenseFont);
-//        ImageView imageViewIcon = (ImageView)findViewById(R.id.imageView);
-//        imageViewIcon.setColorFilter(getContext().getResources().getColor(R.color.primary_dark_material_dark));
 
         return true;
     }
@@ -104,20 +100,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void showDriveRating(Trip trip) {
-        Intent intent = new Intent(this, MapActivity.class);
-        intent.putExtra("Current Trip", trip);
-        startActivity(intent);
-    }
 
-
-
-
-
-    public void showHistory() {
-        Intent intent = new Intent(this, HistoryActivity.class);
-        startActivity(intent);
-    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -157,14 +140,15 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
     private synchronized void stopRunning() {
 
         Log.d(TAG, "Stopping live data..");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
 
-        if(curtrip_.getDistance() >= 0.5 && curtrip_.getDuration() >= 2.0) {
+        if(curtrip_.getDistance() >= 0.3 && curtrip_.getDuration() >= 1.0) {
             dbHelper_.insertTrip(curtrip_);
+        } else {
+            dbHelper_.deleteTrip(curtrip_.getStartTime());
         }
         dbHelper_.closeDatabase();
 
@@ -176,8 +160,13 @@ public class MainActivity extends AppCompatActivity {
             mSensorIntent = null;
             mSensorServiceConnection = null;
         }
+
+        tvSpeed.setText(String.format("%.1f", 0.0));
+        tvMiles.setText(String.format("%.2f", 0.00));
     }
 
+
+    //
     /**
      * where we get the sensor data
      */
@@ -194,19 +183,25 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Got message: " + trace.toJson());
                 curtrip_.addGPS(trace);
                 //UI
-                TextView tvSpeed = (TextView) findViewById(R.id.textspeed);
-                TextView tvMiles = (TextView) findViewById(R.id.milesdriven);
                 tvSpeed.setText(String.format("%.1f", curtrip_.getSpeed()));
-                tvMiles.setText(String.format("%.1f", curtrip_.getDistance()));
+                tvMiles.setText(String.format("%.2f", curtrip_.getDistance()));
             }
             if(rating != null) {
                 rating.readingData(trace);
             }
-
-
-
         }
     };
+
+    public void showDriveRating(Trip trip) {
+        Intent intent = new Intent(this, MapActivity.class);
+        intent.putExtra("Current Trip", trip);
+        startActivity(intent);
+    }
+
+    public void showHistory() {
+        Intent intent = new Intent(this, HistoryActivity.class);
+        startActivity(intent);
+    }
 
     protected void onPause() {
         super.onPause();
