@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 
@@ -148,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
         if(curtrip_.getDistance() >= 0.3 && curtrip_.getDuration() >= 1.0) {
             dbHelper_.insertTrip(curtrip_);
         } else {
+            Toast.makeText(MainActivity.this, "Trip too short, not saved!", Toast.LENGTH_SHORT).show();
             dbHelper_.deleteTrip(curtrip_.getStartTime());
         }
         dbHelper_.closeDatabase();
@@ -188,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
             }
             if(rating != null) {
                 rating.readingData(trace);
+                Log.d(TAG, String.valueOf(curtrip_.getScore()));
             }
         }
     };

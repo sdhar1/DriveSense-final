@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import wisc.drivesense.R;
+import wisc.drivesense.rating.Rating;
 import wisc.drivesense.utility.Trace;
 import wisc.drivesense.utility.Trip;
 
@@ -59,6 +60,8 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
             }
         });
 
+
+        calculateRating(trip_);
         TextView ratingView = (TextView) findViewById(R.id.rating);
         ratingView.setText(String.format("%.1f", trip_.getScore()));
 
@@ -67,6 +70,17 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
 
 
     }
+
+    private void calculateRating(Trip trip) {
+        Rating rating = new Rating(trip);
+        List<Trace> gps = trip.getGPSPoints();
+        for(int i = 0; i < gps.size(); ++i) {
+            Trace point = gps.get(i);
+            rating.readingData(point);
+        }
+        Log.d(TAG, String.valueOf(trip.getScore()));
+    }
+
 
     @Override
     public void onMapReady(GoogleMap map) {
@@ -79,6 +93,7 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
 
         LatLng start;
         int sz = trip_.getGPSPoints().size();
+
         if(sz >= 2) {
             start = new LatLng(trip_.getStartPoint().values[0], trip_.getStartPoint().values[1]);
         } else {
@@ -92,7 +107,6 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
                 .build();
 
         map.moveCamera(CameraUpdateFactory.newCameraPosition(position));
-
         if(sz >= 2) {
             plotRoute(map);
         }
@@ -153,6 +167,7 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
             public void onMapLoaded() {
                 int padding = 100;
                 map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
+                //map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
             }
         });
     }

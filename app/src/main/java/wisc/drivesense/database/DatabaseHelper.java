@@ -20,8 +20,8 @@ public class DatabaseHelper {
     // Logcat tag
     private static final String TAG = "DatabaseHelper";
 
-    private static SQLiteDatabase meta_ = null;
-    private static SQLiteDatabase db_ = null;
+    private SQLiteDatabase meta_ = null;
+    private SQLiteDatabase db_ = null;
 
 
     //private static String DB_PATH = "/sdcard/databases/";
@@ -158,6 +158,7 @@ public class DatabaseHelper {
             for(int i = 0; i < 3; ++i) {
                 trace.values[i] = cursor.getFloat(i + 1);
             }
+            trace.type = Trace.GPS;
             res.add(trace);
         } while (cursor.moveToNext());
         return res;

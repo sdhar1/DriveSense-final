@@ -166,6 +166,9 @@ public class UploaderService extends Service {
         if(httpRequest != null && httpRequest.isCancelled() == false) {
             httpRequest.cancel(true);
         }
+        if(dbHelper_ != null && dbHelper_.isOpen()) {
+            dbHelper_.closeDatabase();
+        }
 
         isRunning_.set(false);
         stopSelf();
