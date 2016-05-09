@@ -25,9 +25,9 @@ public class SensorService extends Service implements SensorEventListener, Locat
 
 
     //doing nothing at this version
-    private DatabaseHelper dbHelper_ = null;
+    //private DatabaseHelper dbHelper_ = null;
 
-    private final Binder binder_ = new SensorBinder();
+    private final Binder binder_ = null; //new SensorBinder();
     private AtomicBoolean isRunning_ = new AtomicBoolean(false);
 
     private SensorManager sensorManager;
@@ -65,7 +65,7 @@ public class SensorService extends Service implements SensorEventListener, Locat
     public void onLocationChanged(Location location) {
         Log.d(TAG, "location update speed:" + String.valueOf(location.getSpeed()));
         // TODO Auto-generated method stub
-        if(location != null && dbHelper_ != null){
+        if(location != null){
             speed_ = location.getSpeed();
             Trace trace = new Trace(3);
             trace.time = System.currentTimeMillis();
@@ -162,12 +162,13 @@ public class SensorService extends Service implements SensorEventListener, Locat
         }
     }
 
+
     @Override
     public IBinder onBind(Intent intent) {
         // TODO Auto-generated method stub
         return binder_;
     }
-
+    /*
     public class SensorBinder extends Binder {
         public void setDatabaseHelper(DatabaseHelper dbhelper) {
             dbHelper_ = dbhelper;
@@ -180,6 +181,7 @@ public class SensorService extends Service implements SensorEventListener, Locat
         }
         public double getSpeed() {return speed_;}
     }
+    */
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         startService();
@@ -191,7 +193,6 @@ public class SensorService extends Service implements SensorEventListener, Locat
         sensorManager.unregisterListener(this);
         locationManager.removeUpdates(this);
         isRunning_.set(false);
-        dbHelper_ = null;
         stopSelf();
     }
 

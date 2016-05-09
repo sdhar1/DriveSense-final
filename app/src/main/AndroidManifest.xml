@@ -49,12 +49,18 @@
         <activity android:name=".activity.HistoryActivity" />
 
         <receiver
-            android:name=".uploader.NetworkStateReceiver"
+            android:name=".uploader.StateReceiver" >
+            <!--
             android:enabled="true"
-            android:exported="true">
+            android:exported="true"
+
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-                <!-- <action android:name="android.net.wifi.WIFI_STATE_CHANGED" /> -->
+            </intent-filter>
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
             </intent-filter>
         </receiver>
 

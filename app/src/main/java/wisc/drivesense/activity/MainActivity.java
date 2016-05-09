@@ -1,6 +1,7 @@
 
 package wisc.drivesense.activity;
 
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,7 +24,7 @@ import wisc.drivesense.R;
 import wisc.drivesense.database.DatabaseHelper;
 import wisc.drivesense.rating.Rating;
 import wisc.drivesense.sensor.SensorService;
-import wisc.drivesense.sensor.SensorServiceConnection;
+import wisc.drivesense.uploader.UploaderService;
 import wisc.drivesense.utility.Constants;
 import wisc.drivesense.utility.Trace;
 import wisc.drivesense.utility.Trip;
@@ -38,8 +39,6 @@ public class MainActivity extends AppCompatActivity {
 
     /////////////
     private static Intent mSensorIntent = null;
-    //dumb service connection, almost useless, use local broadcast receiver instead
-    private static SensorServiceConnection mSensorServiceConnection = null;
 
     private static String TAG = "MainActivity";
 
@@ -50,6 +49,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        Log.d(TAG, "created");
 
         tvSpeed = (TextView) findViewById(R.id.textspeed);
         tvMiles = (TextView) findViewById(R.id.milesdriven);
@@ -134,9 +136,7 @@ public class MainActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("sensor"));
 
         mSensorIntent = new Intent(this, SensorService.class);
-        mSensorServiceConnection = new SensorServiceConnection(dbHelper_);
-        Log.d(TAG, "Binding sensor service..");
-        bindService(mSensorIntent, mSensorServiceConnection, Context.BIND_AUTO_CREATE);
+        Log.d(TAG, "Starting sensor service..");
         startService(mSensorIntent);
 
     }
@@ -155,13 +155,8 @@ public class MainActivity extends AppCompatActivity {
         dbHelper_.closeDatabase();
 
 
-        if (mSensorServiceConnection != null && mSensorServiceConnection.isRunning()) {
-            Log.d(TAG, "stop sensor servcie");
-            unbindService(mSensorServiceConnection);
-            stopService(mSensorIntent);
-            mSensorIntent = null;
-            mSensorServiceConnection = null;
-        }
+        stopService(mSensorIntent);
+        mSensorIntent = null;
 
         tvSpeed.setText(String.format("%.1f", 0.0));
         tvMiles.setText(String.format("%.2f", 0.00));
@@ -206,6 +201,18 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+
+
+    public static boolean isMyServiceRunning(Context context, Class running) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (running.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected void onPause() {
         super.onPause();
     }
@@ -216,6 +223,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
     }
+
+
 
 }
 
