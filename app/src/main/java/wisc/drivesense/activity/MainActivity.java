@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
             }
             if(rating != null) {
                 rating.readingData(trace);
-                Log.d(TAG, String.valueOf(curtrip_.getScore()));
+                //Log.d(TAG, String.valueOf(curtrip_.getScore()));
             }
         }
     };
