@@ -49,15 +49,16 @@
         <activity android:name=".activity.HistoryActivity" />
 
         <receiver
-            android:name=".uploader.StateReceiver" >
-            <!--
+            android:name=".uploader.NetworkStateReceiver"
             android:enabled="true"
-            android:exported="true"
-
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
-            -->
+        </receiver>
+
+        <receiver
+            android:name=".sensor.ChargingStateReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
                 <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>

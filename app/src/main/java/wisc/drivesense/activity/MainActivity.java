@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.List;
 
 import wisc.drivesense.R;
 import wisc.drivesense.database.DatabaseHelper;
@@ -31,6 +32,9 @@ import wisc.drivesense.utility.Trip;
 
 
 public class MainActivity extends AppCompatActivity {
+
+
+    public static boolean running = false;
 
     private static DatabaseHelper dbHelper_;
     private Trip curtrip_;
@@ -49,9 +53,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
-        Log.d(TAG, "created");
 
         tvSpeed = (TextView) findViewById(R.id.textspeed);
         tvMiles = (TextView) findViewById(R.id.milesdriven);
@@ -203,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    public static boolean isMyServiceRunning(Context context, Class running) {
+    public static boolean isServiceRunning(Context context, Class running) {
         ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (running.getName().equals(service.service.getClassName())) {
@@ -213,6 +214,18 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+    /*
+    public static boolean isActivityRunning(Context context, String name) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningAppProcessInfo app : manager.getRunningAppProcesses()) {
+            if (name.equals(app.processName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    */
+
     protected void onPause() {
         super.onPause();
     }
@@ -221,6 +234,7 @@ public class MainActivity extends AppCompatActivity {
     }
     @Override
     protected void onDestroy() {
+        Log.d(TAG, "onDestroy");
         super.onDestroy();
     }
 

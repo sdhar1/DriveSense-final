@@ -23,10 +23,6 @@ import wisc.drivesense.utility.Trace;
 
 public class SensorService extends Service implements SensorEventListener, LocationListener {
 
-
-    //doing nothing at this version
-    //private DatabaseHelper dbHelper_ = null;
-
     private final Binder binder_ = null; //new SensorBinder();
     private AtomicBoolean isRunning_ = new AtomicBoolean(false);
 
@@ -53,11 +49,6 @@ public class SensorService extends Service implements SensorEventListener, Locat
     private long tLastMagnetometer = 0;
 
 
-    private double latitude_;
-    private double longitude_;
-    private double speed_;
-
-
     private final String TAG = "Sensor Service";
 
 
@@ -66,7 +57,6 @@ public class SensorService extends Service implements SensorEventListener, Locat
         Log.d(TAG, "location update speed:" + String.valueOf(location.getSpeed()));
         // TODO Auto-generated method stub
         if(location != null){
-            speed_ = location.getSpeed();
             Trace trace = new Trace(3);
             trace.time = System.currentTimeMillis();
             trace.values[0] = (float) location.getLatitude();
