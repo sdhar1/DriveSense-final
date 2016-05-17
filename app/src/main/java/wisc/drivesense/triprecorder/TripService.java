@@ -1,4 +1,4 @@
-package wisc.drivesense.sensor;
+package wisc.drivesense.triprecorder;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -14,24 +14,21 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import wisc.drivesense.activity.MainActivity;
 import wisc.drivesense.database.DatabaseHelper;
-import wisc.drivesense.rating.Rating;
 import wisc.drivesense.utility.Constants;
 import wisc.drivesense.utility.Trace;
 import wisc.drivesense.utility.Trip;
 
-public class DrivingDetectionService extends Service {
+public class TripService extends Service {
 
     private DatabaseHelper dbHelper_ = null;
-    private Trip curtrip_ = null;
-    private Rating rating_ = null;
+    private static Trip curtrip_ = null;
 
-    private final Binder _binder = new DrivingDetectionServiceBinder();
+    private final Binder _binder = new TripServiceBinder();
     private AtomicBoolean _isRunning = new AtomicBoolean(false);
     private AtomicBoolean isDrving_ = new AtomicBoolean(false);
 
-    private final String TAG = "Driving Detection";
+    private final String TAG = "Trip Service";
 
 
     private static Intent mSensor = null;
@@ -42,9 +39,9 @@ public class DrivingDetectionService extends Service {
         return _binder;
     }
 
-    public class DrivingDetectionServiceBinder extends Binder {
-        public void setDatabaseHelper(DatabaseHelper dbhelper) {
-            dbHelper_ = dbhelper;
+    public class TripServiceBinder extends Binder {
+        public Trip getTrip() {
+            return curtrip_;
         }
         public boolean isRunning() {
             return _isRunning.get();
@@ -64,6 +61,7 @@ public class DrivingDetectionService extends Service {
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
 
+        //validate the trip based on distance and travel time
         if(curtrip_.getDistance() >= 0.3 && curtrip_.getDuration() >= 1.0) {
             Toast.makeText(this, "Saving trip in background!", Toast.LENGTH_SHORT).show();
             dbHelper_.insertTrip(curtrip_);
@@ -86,7 +84,6 @@ public class DrivingDetectionService extends Service {
         startService(mSensor);
 
         //start recording
-        long time = System.currentTimeMillis();
         File dbDir = new File(Constants.kDBFolder);
         if (!dbDir.exists()) {
             dbDir.mkdirs();
@@ -94,9 +91,10 @@ public class DrivingDetectionService extends Service {
 
         Toast.makeText(this, "Start trip in background!", Toast.LENGTH_SHORT).show();
         dbHelper_ = new DatabaseHelper();
+
+        long time = System.currentTimeMillis();
         dbHelper_.createDatabase(time);
         curtrip_ = new Trip(time);
-        rating_ = new Rating(curtrip_);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("sensor"));
     }
@@ -118,11 +116,18 @@ public class DrivingDetectionService extends Service {
             if(trace.type.compareTo(Trace.GPS) == 0) {
                 Log.d(TAG, "Got message: " + trace.toJson());
                 curtrip_.addGPS(trace);
-            }
-            if(rating_ != null) {
-                rating_.readingData(trace);
-                //Log.d(TAG, String.valueOf(curtrip_.getScore()));
+                sendTrip(trace);
             }
         }
     };
+
+    private void sendTrip(Trace trace) {
+        Intent intent = new Intent("driving");
+        intent.putExtra("trip", trace.toJson());
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+
+
+
 }

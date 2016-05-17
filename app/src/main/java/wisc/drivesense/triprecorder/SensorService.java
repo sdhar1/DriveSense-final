@@ -1,4 +1,4 @@
-package wisc.drivesense.sensor;
+package wisc.drivesense.triprecorder;
 
 import android.app.Service;
 import android.content.Context;
@@ -18,7 +18,6 @@ import android.util.Log;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import wisc.drivesense.database.DatabaseHelper;
 import wisc.drivesense.utility.Trace;
 
 public class SensorService extends Service implements SensorEventListener, LocationListener {

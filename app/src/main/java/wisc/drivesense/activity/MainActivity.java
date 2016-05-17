@@ -7,7 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -19,13 +21,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.util.List;
 
 import wisc.drivesense.R;
-import wisc.drivesense.database.DatabaseHelper;
-import wisc.drivesense.rating.Rating;
-import wisc.drivesense.sensor.SensorService;
-import wisc.drivesense.uploader.UploaderService;
+import wisc.drivesense.triprecorder.TripService;
 import wisc.drivesense.utility.Constants;
 import wisc.drivesense.utility.Trace;
 import wisc.drivesense.utility.Trip;
@@ -33,21 +31,16 @@ import wisc.drivesense.utility.Trip;
 
 public class MainActivity extends AppCompatActivity {
 
+    //for display usage only, all calculation is conducted in TripService
+    private Trip curtrip_ = null;
 
-    public static boolean running = false;
-
-    private static DatabaseHelper dbHelper_;
-    private Trip curtrip_;
     private int started = 0;
-    private Rating rating;
-
-    /////////////
-    private static Intent mSensorIntent = null;
 
     private static String TAG = "MainActivity";
 
     private TextView tvSpeed = null;
     private TextView tvMiles = null;
+    private Button btnStart = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,17 +49,28 @@ public class MainActivity extends AppCompatActivity {
 
         tvSpeed = (TextView) findViewById(R.id.textspeed);
         tvMiles = (TextView) findViewById(R.id.milesdriven);
+        btnStart = (Button) findViewById(R.id.btnstart);
 
         android.support.v7.widget.Toolbar mToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.maintoolbar);
         setSupportActionBar(mToolbar);
-
 
         File dbDir = new File(Constants.kDBFolder);
         if (!dbDir.exists()) {
             dbDir.mkdirs();
         }
-        dbHelper_ = new DatabaseHelper();
         addListenerOnButton();
+        detectAutoMode();
+
+    }
+
+    private void detectAutoMode() {
+        if(MainActivity.isServiceRunning(this, TripService.class) == true) {
+            Log.d(TAG, "TripService is running already");
+            startRunning();
+            started = 1;
+            btnStart.setBackgroundResource(R.drawable.stop_button);
+            btnStart.setText(R.string.stop_button);
+        }
     }
 
     @Override
@@ -80,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
     //get the selected dropdown list value
     public void addListenerOnButton() {
 
-        final Button btnStart = (Button) findViewById(R.id.btnstart);
         //final TextView txtView= (TextView) findViewById(R.id.textspeed);
         btnStart.setOnClickListener(new View.OnClickListener() {
 
@@ -98,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                     started = 0;
                     btnStart.setBackgroundResource(R.drawable.start_button);
                     btnStart.setText(R.string.start_button);
-                    showDriveRating(curtrip_);
+                    showDriveRating();
                 }
             }
         });
@@ -116,7 +119,12 @@ public class MainActivity extends AppCompatActivity {
                 showHistory();
                 return true;
             case R.id.about:
-
+                String androidid = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+                int len = androidid.length();
+                androidid = androidid.substring(len - 6);
+                AlertDialog.Builder showPlace = new AlertDialog.Builder(MainActivity.this);
+                showPlace.setMessage("You Device ID is:" + androidid);
+                showPlace.show();
                 return true;
             default:
                 // If we got here, the user's action was not recognized.
@@ -125,21 +133,18 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-
+    private static Intent mTripServiceIntent = null;
     private synchronized void startRunning() {
         Log.d(TAG, "start running");
 
-        long time = System.currentTimeMillis();
-        dbHelper_.createDatabase(time);
-        curtrip_ = new Trip(time);
-        rating = new Rating(curtrip_);
+        curtrip_ = new Trip(System.currentTimeMillis());
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("driving"));
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("sensor"));
-
-        mSensorIntent = new Intent(this, SensorService.class);
-        Log.d(TAG, "Starting sensor service..");
-        startService(mSensorIntent);
-
+        mTripServiceIntent = new Intent(this, TripService.class);
+        if(MainActivity.isServiceRunning(this, TripService.class) == false) {
+            Log.d(TAG, "Start driving detection service!!!");
+            startService(mTripServiceIntent);
+        }
     }
 
     private synchronized void stopRunning() {
@@ -147,20 +152,20 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Stopping live data..");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
 
-        if(curtrip_.getDistance() >= 0.3 && curtrip_.getDuration() >= 1.0) {
-            dbHelper_.insertTrip(curtrip_);
-        } else {
+        if(curtrip_.getDistance() < 0.3 || curtrip_.getDuration() < 1.0) {
             Toast.makeText(MainActivity.this, "Trip too short, not saved!", Toast.LENGTH_SHORT).show();
-            dbHelper_.deleteTrip(curtrip_.getStartTime());
         }
-        dbHelper_.closeDatabase();
-
-
-        stopService(mSensorIntent);
-        mSensorIntent = null;
 
         tvSpeed.setText(String.format("%.1f", 0.0));
         tvMiles.setText(String.format("%.2f", 0.00));
+
+
+        if(MainActivity.isServiceRunning(this, TripService.class) == true) {
+            Log.d(TAG, "Stop driving detection service!!!");
+            stopService(mTripServiceIntent);
+            mTripServiceIntent = null;
+        }
+
     }
 
 
@@ -168,32 +173,24 @@ public class MainActivity extends AppCompatActivity {
     /**
      * where we get the sensor data
      */
+
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String message = intent.getStringExtra("trace");
+            String message = intent.getStringExtra("trip");
+            Log.d(TAG, "Got message: " + message);
             Trace trace = new Trace();
             trace.fromJson(message);
-            if(dbHelper_.isOpen()) {
-                dbHelper_.insertSensorData(trace);
-            }
-            if(trace.type.compareTo(Trace.GPS) == 0) {
-                Log.d(TAG, "Got message: " + trace.toJson());
-                curtrip_.addGPS(trace);
-                //UI
-                tvSpeed.setText(String.format("%.1f", curtrip_.getSpeed()));
-                tvMiles.setText(String.format("%.2f", curtrip_.getDistance()));
-            }
-            if(rating != null) {
-                rating.readingData(trace);
-                //Log.d(TAG, String.valueOf(curtrip_.getScore()));
-            }
+            curtrip_.addGPS(trace);
+            tvSpeed.setText(String.format("%.1f", curtrip_.getSpeed()));
+            tvMiles.setText(String.format("%.2f", curtrip_.getDistance()));
         }
     };
 
-    public void showDriveRating(Trip trip) {
+
+    public void showDriveRating() {
         Intent intent = new Intent(this, MapActivity.class);
-        intent.putExtra("Current Trip", trip);
+        intent.putExtra("Current Trip", curtrip_);
         startActivity(intent);
     }
 
@@ -214,17 +211,6 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    /*
-    public static boolean isActivityRunning(Context context, String name) {
-        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningAppProcessInfo app : manager.getRunningAppProcesses()) {
-            if (name.equals(app.processName)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    */
 
     protected void onPause() {
         super.onPause();

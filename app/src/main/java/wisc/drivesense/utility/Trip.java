@@ -18,11 +18,16 @@ public class Trip implements Serializable {
     private Trace start_ = null;
     private Trace dest_ = new Trace();
 
+    private Rating rating = null;
+
+    private String TAG = "Trip";
+
     //private DatabaseHelper dbHelper_ = null;
 
     public Trip (long time) {
         gps_ = new ArrayList<Trace>();
         this.startTime_ = time;
+        rating = new Rating(this);
     }
 
     public void setScore(double score) {this.score_ = score;}
@@ -44,7 +49,9 @@ public class Trip implements Serializable {
     public Trace getEndPoint() {return dest_;}
     public double getSpeed() {return speed_ * Constants.kMeterPSToMilePH;}
 
+
     public void addGPS(Trace trace) {
+
         gps_.add(trace);
         if(start_ == null) {
             start_ = new Trace();
@@ -58,6 +65,9 @@ public class Trip implements Serializable {
         if(sz >= 2) {
             distance_ += distance(gps_.get(sz - 2), gps_.get(sz - 1));
         }
+
+        //rate the trip
+        rating.readingData(trace);
     }
 
 
@@ -89,4 +99,5 @@ public class Trip implements Serializable {
         //Log.log("dis:", res);
         return res * Constants.kEarthRadius;
     }
+
 }

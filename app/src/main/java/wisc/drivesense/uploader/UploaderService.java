@@ -81,6 +81,8 @@ public class UploaderService extends Service {
         }
 
         String androidid = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+        int len = androidid.length();
+        androidid = androidid.substring(len - 6);
         Log.d(TAG, "uploading" + dbname);
         String[] params = new String[]{Constants.kUploadURL, androidid, dbname};
 

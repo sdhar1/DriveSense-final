@@ -30,7 +30,7 @@ public class DatabaseHelper {
     private static final String DATABASE_NAME = "summary.db";
     private static final String TABLE_META = "meta";
     private static final String CREATE_TABLE_META = "CREATE TABLE IF NOT EXISTS "
-            + TABLE_META + "(starttime INTEGER, endtime INTEGER, distance REAL, deleted INTEGER, uploaded INTEGER);";
+            + TABLE_META + "(starttime INTEGER, endtime INTEGER, distance REAL, score REAL, deleted INTEGER, uploaded INTEGER);";
 
 
     // Table Names
@@ -108,6 +108,7 @@ public class DatabaseHelper {
         values.put("starttime", trip.getStartTime());
         values.put("endtime", trip.getEndTime());
         values.put("distance", trip.getDistance());
+        values.put("score", trip.getScore());
         values.put("deleted", 0);
         values.put("uploaded", 0);
         meta_.insert(TABLE_META, null, values);
@@ -203,12 +204,14 @@ public class DatabaseHelper {
             long stime = cursor.getLong(0);
             long etime = cursor.getLong(1);
             double dist = cursor.getDouble(2);
-            int deleted = cursor.getInt(3);
+            double score = cursor.getDouble(3);
+            int deleted = cursor.getInt(4);
             if(deleted == 1) {
                 continue;
             }
             Trip trip = new Trip(stime);
             trip.setGPSPoints(this.getGPSPoints(stime));
+            trip.setScore(score);
             trips.add(trip);
         } while (cursor.moveToNext());
         return trips;

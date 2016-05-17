@@ -1,10 +1,9 @@
-package wisc.drivesense.sensor;
+package wisc.drivesense.triprecorder;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
 
 import wisc.drivesense.activity.MainActivity;
 
@@ -21,20 +20,20 @@ public class ChargingStateReceiver extends BroadcastReceiver {
         if(action.equals(Intent.ACTION_POWER_CONNECTED)) {
             // Do something when power connected
             Log.d(TAG, "plugged");
-            if(MainActivity.isServiceRunning(context, DrivingDetectionService.class) == false) {
+            if(MainActivity.isServiceRunning(context, TripService.class) == false) {
                 Log.d(TAG, "Start driving detection service!!!");
-                mDrivingDetectionIntent = new Intent(context, DrivingDetectionService.class);
+                mDrivingDetectionIntent = new Intent(context, TripService.class);
                 context.startService(mDrivingDetectionIntent);
             }
 
         } else if(action.equals(Intent.ACTION_POWER_DISCONNECTED)) {
             // Do something when power disconnected
             Log.d(TAG, "unplugged");
-            if(MainActivity.isServiceRunning(context, DrivingDetectionService.class) == true) {
+            if(MainActivity.isServiceRunning(context, TripService.class) == true) {
                 Log.d(TAG, "Stop driving detection service!!!");
                 context.stopService(mDrivingDetectionIntent);
                 mDrivingDetectionIntent = null;
-            }
+             }
         } else {
 
         }

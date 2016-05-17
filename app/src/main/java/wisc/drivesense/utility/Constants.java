@@ -22,7 +22,7 @@ public class Constants {
     public static final double kSampleRate = 1.0;
 
 
-    public static final String kUploadURL = "http://128.105.22.44:8000/upload";
+    public static final String kUploadURL = "http://drivesense.wings.cs.wisc.edu:8000/upload";
     public static final String kDBFolder = "/data/data/wisc.drivesense/databases/";
 
 }

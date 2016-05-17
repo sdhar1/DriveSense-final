@@ -1,18 +1,13 @@
 package wisc.drivesense.uploader;
 
-import android.app.Activity;
-import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.BatteryManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import wisc.drivesense.activity.MainActivity;
-import wisc.drivesense.sensor.SensorService;
 
 public class NetworkStateReceiver extends BroadcastReceiver {
 

@@ -1,6 +1,6 @@
-package wisc.drivesense.rating;
+package wisc.drivesense.utility;
 
-import android.util.Log;
+import java.io.Serializable;
 
 import wisc.drivesense.utility.Trace;
 import wisc.drivesense.utility.Trip;
@@ -8,8 +8,9 @@ import wisc.drivesense.utility.Trip;
 /**
  * Created by lkang on 4/20/16.
  */
-public class Rating {
+public class Rating implements Serializable {
     private Trip trip_;
+    private int counter_;
     private Trace lastTrace_;
     private double lastSpeed_;
     private double score_ = 10.0;
@@ -20,11 +21,14 @@ public class Rating {
         this.trip_ = trip;
         lastSpeed_ = -1.0;
         lastTrace_ = null;
+        counter_ = 0;
     }
 
     public int readingData(Trace trace) {
         if(!trace.type.equals(Trace.GPS)) {
             return 0;
+        } else {
+            counter_++;
         }
         if(lastTrace_ == null) {
             lastTrace_ = trace;
@@ -40,14 +44,17 @@ public class Rating {
 
         lastSpeed_ = curSpeed;
         lastTrace_ = trace;
-        if(a < -2.8) {
-            score_ *= 0.98;
+        if(a < -2.0) {
+            double curscore = 3.0 - Math.abs(a);
+            score_ = (score_ * (counter_ - 1) + curscore * 10.0)/counter_;
             trip_.setScore(score_);
             return -1;
+        } else {
+            score_ = (score_ * (counter_ - 1) + 10.0)/counter_;
+            trip_.setScore(score_);
+            return 0;
         }
 
-
-        return 0;
     }
 
 

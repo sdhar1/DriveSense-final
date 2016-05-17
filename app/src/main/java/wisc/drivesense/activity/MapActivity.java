@@ -6,15 +6,12 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.LevelListDrawable;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -31,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import wisc.drivesense.R;
-import wisc.drivesense.rating.Rating;
+import wisc.drivesense.utility.Rating;
 import wisc.drivesense.utility.Trace;
 import wisc.drivesense.utility.Trip;
 
