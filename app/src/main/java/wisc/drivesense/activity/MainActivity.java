@@ -6,7 +6,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
@@ -59,19 +61,8 @@ public class MainActivity extends AppCompatActivity {
             dbDir.mkdirs();
         }
         addListenerOnButton();
-        detectAutoMode();
-
     }
 
-    private void detectAutoMode() {
-        if(MainActivity.isServiceRunning(this, TripService.class) == true) {
-            Log.d(TAG, "TripService is running already");
-            startRunning();
-            started = 1;
-            btnStart.setBackgroundResource(R.drawable.stop_button);
-            btnStart.setText(R.string.stop_button);
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -89,6 +80,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
+                if(SettingActivity.isAutoMode(MainActivity.this)) {
+                    Toast.makeText(MainActivity.this, "Disable Auto Mode in Settings", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if (started == 0) {
                     //Toast.makeText(MainActivity.this, "Service Started!", Toast.LENGTH_SHORT).show();
                     startRunning();
@@ -112,20 +107,13 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.settings:
-
+                showSettings();
                 return true;
 
             case R.id.history:
                 showHistory();
                 return true;
-            case R.id.about:
-                String androidid = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
-                int len = androidid.length();
-                androidid = androidid.substring(len - 6);
-                AlertDialog.Builder showPlace = new AlertDialog.Builder(MainActivity.this);
-                showPlace.setMessage("You Device ID is:" + androidid);
-                showPlace.show();
-                return true;
+
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
@@ -191,6 +179,11 @@ public class MainActivity extends AppCompatActivity {
     public void showDriveRating() {
         Intent intent = new Intent(this, MapActivity.class);
         intent.putExtra("Current Trip", curtrip_);
+        startActivity(intent);
+    }
+
+    public void showSettings() {
+        Intent intent = new Intent(this, SettingActivity.class);
         startActivity(intent);
     }
 

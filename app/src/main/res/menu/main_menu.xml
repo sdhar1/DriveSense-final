@@ -5,9 +5,7 @@
         android:title="History"
         app:showAsAction="always"/>
     <item android:id="@+id/settings"
-        android:icon="@drawable/ic_action_user"
-        android:title="Settings" />
-    <item android:id="@+id/about"
-        android:icon="@drawable/ic_action_car"
-        android:title="Device ID" />
+        android:icon="@drawable/ic_setting"
+        android:title="Settings"
+        app:showAsAction="always"/>
 </menu>

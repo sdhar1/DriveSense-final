@@ -8,4 +8,6 @@
     <string name="action_settings">Settings</string>
     <string name="fontfile">fonts/JosefinSans-Light.ttf</string>
     <string name="title_activity_map">MapActivity</string>
+    <string name="setting">Settings</string>
+
 </resources>

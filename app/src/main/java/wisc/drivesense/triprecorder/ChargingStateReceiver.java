@@ -4,8 +4,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 import wisc.drivesense.activity.MainActivity;
+import wisc.drivesense.activity.SettingActivity;
 
 public class ChargingStateReceiver extends BroadcastReceiver {
 
@@ -14,25 +16,27 @@ public class ChargingStateReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
+        if(SettingActivity.isAutoMode(context) == false) {
+            return;
+        }
+
         //check charging status, and start sensor service automatically
         String action = intent.getAction();
+        mDrivingDetectionIntent = new Intent(context, TripService.class);
 
         if(action.equals(Intent.ACTION_POWER_CONNECTED)) {
             // Do something when power connected
             Log.d(TAG, "plugged");
             if(MainActivity.isServiceRunning(context, TripService.class) == false) {
                 Log.d(TAG, "Start driving detection service!!!");
-                mDrivingDetectionIntent = new Intent(context, TripService.class);
                 context.startService(mDrivingDetectionIntent);
             }
-
         } else if(action.equals(Intent.ACTION_POWER_DISCONNECTED)) {
             // Do something when power disconnected
             Log.d(TAG, "unplugged");
             if(MainActivity.isServiceRunning(context, TripService.class) == true) {
                 Log.d(TAG, "Stop driving detection service!!!");
                 context.stopService(mDrivingDetectionIntent);
-                mDrivingDetectionIntent = null;
              }
         } else {
 
