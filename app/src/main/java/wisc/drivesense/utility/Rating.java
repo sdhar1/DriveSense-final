@@ -2,9 +2,6 @@ package wisc.drivesense.utility;
 
 import java.io.Serializable;
 
-import wisc.drivesense.utility.Trace;
-import wisc.drivesense.utility.Trip;
-
 /**
  * Created by lkang on 4/20/16.
  */
