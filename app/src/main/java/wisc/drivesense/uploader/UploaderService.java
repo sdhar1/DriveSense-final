@@ -89,7 +89,6 @@ public class UploaderService extends Service {
         httpRequest = new SendHttpRequestTask();
         httpRequest.execute(params);
 
-        SystemClock.sleep(1000 * 10);
     }
 
 
@@ -111,6 +110,7 @@ public class UploaderService extends Service {
                 Log.d(TAG, e.toString());
             }
             this.cancel(true);
+            SystemClock.sleep(1000 * 10);
             selectAndUploadOneFile(result);
         }
 
