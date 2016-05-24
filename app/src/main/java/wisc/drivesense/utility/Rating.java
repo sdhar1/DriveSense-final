@@ -24,8 +24,6 @@ public class Rating implements Serializable {
     public int readingData(Trace trace) {
         if(!trace.type.equals(Trace.GPS)) {
             return 0;
-        } else {
-            counter_++;
         }
         if(lastTrace_ == null) {
             lastTrace_ = trace;
@@ -36,13 +34,17 @@ public class Rating implements Serializable {
         if(lastSpeed_ == -1.0) {
             lastSpeed_ = curSpeed;
             return 0;
+        } else if(curSpeed == 0.0) {
+            return 0;
+        } else {
+            counter_++;
         }
         double a = (curSpeed - lastSpeed_)/(time/1000.0);
 
         lastSpeed_ = curSpeed;
         lastTrace_ = trace;
         if(a < -2.0) {
-            double curscore = 3.0 - Math.abs(a);
+            double curscore = 3.0 - Math.min(3.0, Math.abs(a));
             score_ = (score_ * (counter_ - 1) + curscore * 10.0)/counter_;
             trip_.setScore(score_);
             return -1;
