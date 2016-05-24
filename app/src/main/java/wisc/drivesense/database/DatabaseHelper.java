@@ -75,7 +75,7 @@ public class DatabaseHelper {
     private boolean opened = false;
     // public interfaces
     public DatabaseHelper() {
-
+        this.opened = true;
         //this.context = cont;
         //openOrCreateDatabase(DATABASE_NAME, SQLiteDatabase.CREATE_IF_NECESSARY, null);
         //File dir = this.context.getFilesDir();
