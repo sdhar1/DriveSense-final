@@ -21,7 +21,7 @@ public class HistoryActivity extends Activity {
 
     private final String TAG = "HistoryActivity";
 
-    private DatabaseHelper dbHelper_ = new DatabaseHelper();
+    private DatabaseHelper dbHelper_ = null;
 
     private ArrayAdapter<Trip> adapter_ = null;
     List<Trip> trips_ = null;
@@ -46,6 +46,7 @@ public class HistoryActivity extends Activity {
 
         ListView listView = (ListView)findViewById(R.id.listView);
 
+        dbHelper_ = new DatabaseHelper();
         trips_ = dbHelper_.loadTrips();
         adapter_ = new TripAdapter(this, trips_);
         listView.setAdapter(adapter_);
@@ -89,4 +90,10 @@ public class HistoryActivity extends Activity {
         });
     }
 
+    protected void onDestroy() {
+        if(dbHelper_ != null && dbHelper_.isOpen()) {
+            dbHelper_.closeDatabase();
+        }
+        super.onDestroy();
+    }
 }

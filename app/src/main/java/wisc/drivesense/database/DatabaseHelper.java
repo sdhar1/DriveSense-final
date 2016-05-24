@@ -97,7 +97,12 @@ public class DatabaseHelper {
     }
     public void closeDatabase() {
         this.opened = false;
-        db_.close();
+        if(meta_ != null && meta_.isOpen()) {
+            meta_.close();
+        }
+        if(db_ != null && db_.isOpen()) {
+            db_.close();
+        }
     }
     public boolean isOpen() {
         return this.opened;
@@ -162,6 +167,7 @@ public class DatabaseHelper {
             trace.type = Trace.GPS;
             res.add(trace);
         } while (cursor.moveToNext());
+        tmpdb.close();
         return res;
     }
 
