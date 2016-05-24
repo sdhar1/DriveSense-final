@@ -20,6 +20,7 @@ public class Constants {
     public static final String slash = "/";
 
     public static final double kSampleRate = 1.0;
+    public static final double kRecordingInterval = 200;
 
 
     public static final String kUploadURL = "http://drivesense.wings.cs.wisc.edu:8000/upload";

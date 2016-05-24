@@ -136,10 +136,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Stopping live data..");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
 
-        if(curtrip_.getDistance() < 0.3 || curtrip_.getDuration() < 1.0) {
-            Toast.makeText(MainActivity.this, "Trip too short, not saved!", Toast.LENGTH_SHORT).show();
-        }
-
         tvSpeed.setText(String.format("%.1f", 0.0));
         tvMiles.setText(String.format("%.2f", 0.00));
 

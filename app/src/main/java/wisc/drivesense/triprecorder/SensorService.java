@@ -18,6 +18,7 @@ import android.util.Log;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import wisc.drivesense.utility.Constants;
 import wisc.drivesense.utility.Trace;
 
 public class SensorService extends Service implements SensorEventListener, LocationListener {
@@ -100,7 +101,7 @@ public class SensorService extends Service implements SensorEventListener, Locat
 
         int type = event.sensor.getType();
         long time = System.currentTimeMillis();
-        if(type== Sensor.TYPE_MAGNETIC_FIELD && (time - tLastMagnetometer) >= 200) {
+        if(type== Sensor.TYPE_MAGNETIC_FIELD && (time - tLastMagnetometer) >= Constants.kRecordingInterval) {
             tLastMagnetometer = time;
             System.arraycopy(event.values, 0, mLastMagnetometer, 0, event.values.length);
             mLastMagnetometerSet = true;
@@ -112,7 +113,7 @@ public class SensorService extends Service implements SensorEventListener, Locat
 
             sendTrace(trace);
 
-        } else if(type==Sensor.TYPE_ACCELEROMETER && (time - tLastAccelerometer) >= 200) {
+        } else if(type==Sensor.TYPE_ACCELEROMETER && (time - tLastAccelerometer) >= Constants.kRecordingInterval) {
             tLastAccelerometer = time;
             System.arraycopy(event.values, 0, mLastAccelerometer, 0, event.values.length);
             mLastAccelerometerSet = true;
@@ -123,7 +124,7 @@ public class SensorService extends Service implements SensorEventListener, Locat
             System.arraycopy(event.values, 0, trace.values, 0, event.values.length);
             sendTrace(trace);
 
-        } else if (type == Sensor.TYPE_GYROSCOPE && (time - tLastGyroscope) >= 200) {
+        } else if (type == Sensor.TYPE_GYROSCOPE && (time - tLastGyroscope) >= Constants.kRecordingInterval) {
             tLastGyroscope = time;
 
 

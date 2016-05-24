@@ -110,7 +110,8 @@ public class UploaderService extends Service {
                 Log.d(TAG, e.toString());
             }
             this.cancel(true);
-            SystemClock.sleep(1000 * 10);
+            //SystemClock.sleep(1000 * 10);
+            //sleep will cause the activity hangs and not able to start
             selectAndUploadOneFile(result);
         }
 
