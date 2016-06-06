@@ -24,8 +24,6 @@ public class DatabaseHelper {
     private SQLiteDatabase db_ = null;
 
 
-    //private static String DB_PATH = "/sdcard/databases/";
-
     // Database Version
     private static final String DATABASE_NAME = "summary.db";
     private static final String TABLE_META = "meta";
