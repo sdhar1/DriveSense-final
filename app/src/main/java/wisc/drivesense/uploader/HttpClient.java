@@ -31,6 +31,7 @@ public class HttpClient {
         con.setRequestMethod("POST");
         con.setDoInput(true);
         con.setDoOutput(true);
+        con.setConnectTimeout(100 * 60);
         con.setRequestProperty("Connection", "Keep-Alive");
         con.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
         con.connect();
@@ -39,6 +40,8 @@ public class HttpClient {
 
     public void finishMultipart() throws Exception {
         os.write( (delimiter + boundary + delimiter + "\r\n").getBytes());
+        os.flush();
+        os.close();
     }
 
 

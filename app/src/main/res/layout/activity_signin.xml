@@ -30,34 +30,41 @@
             android:id="@+id/email_login_form"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:weightSum="1">
 
             <!-- First Name -->
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <AutoCompleteTextView
+                android:layout_height="wrap_content"
+                >
+                <EditText
                     android:id="@+id/first_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/first_name"
                     android:inputType="text"
                     android:maxLines="1"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    android:visibility="gone"
+                    />
             </android.support.design.widget.TextInputLayout>
 
             <!-- Last Name -->
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <AutoCompleteTextView
-                    android:id="@+id/last_ame"
+                android:layout_height="wrap_content"
+                >
+                <EditText
+                    android:id="@+id/last_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/last_name"
                     android:inputType="text"
                     android:maxLines="1"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    android:visibility="gone"
+                    />
             </android.support.design.widget.TextInputLayout>
 
             <!-- Email -->
@@ -106,7 +113,9 @@
                     android:imeOptions="actionUnspecified"
                     android:inputType="textPassword"
                     android:maxLines="1"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    android:visibility="gone"
+                    />
             </android.support.design.widget.TextInputLayout>
 
             <!-- sign in -->
@@ -118,18 +127,6 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/sign_in"
                 android:textStyle="bold" />
-
-            <!-- link to create account -->
-            <TextView
-                android:id="@+id/txtLostpassword"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:autoLink="email"
-                android:gravity="center"
-                android:padding="20px"
-                android:text="test link"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <!-- sign up -->
             <Button

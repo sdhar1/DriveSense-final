@@ -24,6 +24,9 @@ public class Constants {
 
 
     public static final String kUploadURL = "http://drivesense.wings.cs.wisc.edu:8000/upload";
+    public static final String kSignInURL = "http://drivesense.wings.cs.wisc.edu:8000/androidsignin";
+    public static final String kSignUpURL = "http://drivesense.wings.cs.wisc.edu:8000/androidsignup";
+
     public static final String kDBFolder = "/data/data/wisc.drivesense/databases/";
 
 }
