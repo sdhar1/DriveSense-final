@@ -13,6 +13,7 @@ import java.util.List;
 import wisc.drivesense.utility.Constants;
 import wisc.drivesense.utility.Trace;
 import wisc.drivesense.utility.Trip;
+import wisc.drivesense.utility.User;
 
 
 public class DatabaseHelper {
@@ -28,10 +29,10 @@ public class DatabaseHelper {
     private static final String DATABASE_NAME = "summary.db";
     private static final String TABLE_META = "meta";
     private static final String CREATE_TABLE_META = "CREATE TABLE IF NOT EXISTS "
-            + TABLE_META + "(starttime INTEGER, endtime INTEGER, distance REAL, score REAL, deleted INTEGER, uploaded INTEGER);";
+            + TABLE_META + "(starttime INTEGER, endtime INTEGER, distance REAL, score REAL, deleted INTEGER, uploaded INTEGER, email TEXT);";
     private static final String TABLE_USER = "user";
     private static final String CREATE_TABLE_USER = "CREATE TABLE IF NOT EXISTS "
-            + TABLE_USER + "(email TEXT, firstname TEXT);";
+            + TABLE_USER + "(email TEXT, firstname TEXT, lastname TEXT, password TEXT, loginstatus INTEGER);";
 
 
     // Table Names
@@ -83,6 +84,10 @@ public class DatabaseHelper {
         meta_ = SQLiteDatabase.openOrCreateDatabase(Constants.kDBFolder + DATABASE_NAME, null, null);
         meta_.execSQL(CREATE_TABLE_META);
         //we never close meta_ explicitly, maybe
+
+        //create user table
+        meta_.execSQL(CREATE_TABLE_USER);
+
     }
 
 
@@ -117,6 +122,14 @@ public class DatabaseHelper {
         values.put("score", trip.getScore());
         values.put("deleted", 0);
         values.put("uploaded", 0);
+        //assign to current user
+        User user = this.getCurrentUser();
+        if(user != null) {
+            values.put("email", user.email_);
+        } else {
+            //not insert the trip if not logged in
+            return;
+        }
         meta_.insert(TABLE_META, null, values);
     }
 
@@ -255,5 +268,64 @@ public class DatabaseHelper {
 
 
 
+    //email TEXT, firstname TEXT, lastname TEXT, password TEXT, loginstatus INTEGER
+    /* ========================== User Specific Database Operations =================================== */
+    public boolean newUser(User user) {
+        ContentValues values = new ContentValues();
+        values.put("email", user.email_);
+        values.put("firstname", user.firstname_);
+        values.put("lastname", user.lastname_);
+        values.put("password", user.password_);
+        values.put("loginstatus", 1);
+        meta_.insert(TABLE_USER, null, values);
+        return true;
+    }
+    public User getCurrentUser() {
+        User user = null;
+        String selectQuery = "SELECT  * FROM " + TABLE_USER + " WHERE loginstatus = 1;";
+        Cursor cursor = meta_.rawQuery(selectQuery, null);
+        cursor.moveToFirst();
+        do {
+            if(cursor.getCount() == 0) {
+                break;
+            }
+            user = new User();
+            user.email_ = cursor.getString(0);
+            user.firstname_ = cursor.getString(1);
+            user.lastname_ = cursor.getString(2);
+            user.password_ = cursor.getString(3);
+            user.loginstatus_ = cursor.getInt(4);
+            break;
+        } while (cursor.moveToNext());
+        return user;
+    }
+
+    public boolean userLogin(User user) {
+        Log.d(TAG, "user login processing in database");
+        ContentValues data = new ContentValues();
+        data.put("loginstatus", 1);
+        String where = "email = ? ";
+        String[] whereArgs = {user.email_};
+        try {
+            meta_.update(TABLE_USER, data, where, whereArgs);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean userLogout(User user) {
+        Log.d(TAG, "user logout processing in database");
+        ContentValues data = new ContentValues();
+        data.put("loginstatus", 0);
+        String where = "email = ? ";
+        String[] whereArgs = {user.email_};
+        try {
+            meta_.update(TABLE_USER, data, where, whereArgs);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
 }

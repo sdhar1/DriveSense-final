@@ -28,12 +28,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import wisc.drivesense.R;
+import wisc.drivesense.database.DatabaseHelper;
 import wisc.drivesense.uploader.HttpClient;
 import wisc.drivesense.utility.Constants;
+import wisc.drivesense.utility.User;
 
 
 /**
@@ -59,12 +63,16 @@ public class UserActivity extends Activity {
     private EditText mFirstNameView;
     private EditText mLastNameView;
     private EditText mRepeatView;
+    private TextView mUserDetailView;
 
     private Button mEmailSignInButton;
     private Button mEmailSignUpButton;
+    private Button mEmailSignOutButton;
+
 
     private String TAG = "UserActivity";
-
+    private DatabaseHelper dbHelper_;
+    private User curUser_;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +87,7 @@ public class UserActivity extends Activity {
         mRepeatView = (EditText) findViewById(R.id.repeat);
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+        mUserDetailView = (TextView) findViewById(R.id.userdetail);
 
 
         mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
@@ -99,13 +108,47 @@ public class UserActivity extends Activity {
                 }
             }
         });
+        mEmailSignOutButton = (Button) findViewById(R.id.email_sign_out_button);
+        mEmailSignOutButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dbHelper_.userLogout(curUser_);
+                displaySignIn();
+            }
+        });
 
 
+        dbHelper_ = new DatabaseHelper();
+        curUser_ = dbHelper_.getCurrentUser();
+        if(curUser_ == null) {
+            displaySignIn();
+        } else {
+            displaySignOut(curUser_);
+        }
+    }
 
-        displaySignIn();
+    private void displaySignOut(User user) {
+        Log.d(TAG, "Display Sign Out");
+
+        mEmailView.setVisibility(View.GONE);
+        mPasswordView.setVisibility(View.GONE);
+        mFirstNameView.setVisibility(View.GONE);
+        mLastNameView.setVisibility(View.GONE);
+        mRepeatView.setVisibility(View.GONE);
+        mProgressView.setVisibility(View.GONE);
+
+        mEmailSignInButton.setVisibility(View.GONE);
+        mEmailSignUpButton.setVisibility(View.GONE);
+
+        mUserDetailView.setVisibility(View.VISIBLE);
+        mEmailSignOutButton.setVisibility(View.VISIBLE);
+
+        mUserDetailView.setText("Current User: \n" + user.email_ + "\n" + user.firstname_ + " " + user.lastname_ + "\n");
     }
 
     private void displaySignUp() {
+        Log.d(TAG, "Display Sign Up");
+
         mLoginFormView.setVisibility(View.VISIBLE);
         mEmailView.setVisibility(View.VISIBLE);
         mPasswordView.setVisibility(View.VISIBLE);
@@ -115,8 +158,13 @@ public class UserActivity extends Activity {
 
         mEmailSignInButton.setVisibility(View.GONE);
         mProgressView.setVisibility(View.GONE);
+        mUserDetailView.setVisibility(View.GONE);
+        mEmailSignOutButton.setVisibility(View.GONE);
+
     }
     private void displaySignIn() {
+        Log.d(TAG, "Display Sign In");
+
         mLoginFormView.setVisibility(View.VISIBLE);
         mEmailView.setVisibility(View.VISIBLE);
         mPasswordView.setVisibility(View.VISIBLE);
@@ -124,7 +172,13 @@ public class UserActivity extends Activity {
         mLastNameView.setVisibility(View.GONE);
         mRepeatView.setVisibility(View.GONE);
 
+        mEmailSignInButton.setVisibility(View.VISIBLE);
+        mEmailSignUpButton.setVisibility(View.VISIBLE);
+
+
         mProgressView.setVisibility(View.GONE);
+        mUserDetailView.setVisibility(View.GONE);
+        mEmailSignOutButton.setVisibility(View.GONE);
     }
 
 
@@ -147,9 +201,6 @@ public class UserActivity extends Activity {
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
-
-        email = "kanglei1130@gmail.com";
-        password = "kanglei";
 
         Log.d(TAG, mPasswordView.getText().toString());
 
@@ -175,11 +226,16 @@ public class UserActivity extends Activity {
             // form field with an error.
             focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            showProgress(true);
-            mAuthTask = new RegisterTask(email, password);
-            mAuthTask.execute((Void) null);
+            curUser_ = new User();
+            curUser_.email_ = email;
+            curUser_.password_ = password;
+            dbHelper_.userLogin(curUser_);
+            curUser_ = dbHelper_.getCurrentUser();
+            if(curUser_ != null) {
+                displaySignOut(curUser_);
+            } else {
+                displaySignIn();
+            }
         }
     }
 
@@ -206,11 +262,6 @@ public class UserActivity extends Activity {
         String firstname = mFirstNameView.getText().toString();
         String lastname = mLastNameView.getText().toString();
 
-        email = "kanglei1130@gmail.com";
-        password = "kanglei";
-        repeat = "kanglei";
-        firstname = "lei";
-        lastname = "kang";
 
         Log.d(TAG, mPasswordView.getText().toString());
 
@@ -256,7 +307,12 @@ public class UserActivity extends Activity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new RegisterTask(email, password, firstname, lastname);
+            User user = new User();
+            user.email_ = email;
+            user.password_ = password;
+            user.firstname_ = firstname;
+            user.lastname_ = lastname;
+            mAuthTask = new RegisterTask(user);
             mAuthTask.execute((Void) null);
         }
     }
@@ -304,24 +360,13 @@ public class UserActivity extends Activity {
      */
     public class RegisterTask extends AsyncTask<Void, Void, Boolean> {
 
-        private String email_;
-        private String password_;
-        private String firstname_;
-        private String lastname_;
-        private boolean signin = true;
+        private User user_;
+        private boolean signin = false;
 
-        RegisterTask(String email, String password) {
-            email_ = email;
-            password_ = password;
-            signin = true;
-        }
 
-        RegisterTask(String email, String password, String first, String last) {
-            email_ = email;
-            password_ = password;
-            firstname_ = first;
-            lastname_ = last;
-            signin = false;
+
+        RegisterTask(User user) {
+            user_ = user;
         }
 
 
@@ -332,25 +377,15 @@ public class UserActivity extends Activity {
             String res = "";
             try {
                 // Simulate network access.
-                if(signin) {
-                    String url = Constants.kSignInURL;
-                    HttpClient client = new HttpClient(url);
-                    client.connectForMultipart();
-                    client.addFormPart("email", email_);
-                    client.addFormPart("password", password_);
-                    client.finishMultipart();
-                    res = client.getResponse();
-                } else {
-                    String url = Constants.kSignUpURL;
-                    HttpClient client = new HttpClient(url);
-                    client.connectForMultipart();
-                    client.addFormPart("email", email_);
-                    client.addFormPart("password", password_);
-                    client.addFormPart("firstname", firstname_);
-                    client.addFormPart("lastname", lastname_);
-                    client.finishMultipart();
-                    res = client.getResponse();
-                }
+                String url = Constants.kSignUpURL;
+                HttpClient client = new HttpClient(url);
+                client.connectForMultipart();
+                client.addFormPart("email", user_.email_);
+                client.addFormPart("password", user_.password_);
+                client.addFormPart("firstname", user_.firstname_);
+                client.addFormPart("lastname", user_.lastname_);
+                client.finishMultipart();
+                res = client.getResponse();
                 Log.d(TAG, res);
             } catch (Throwable t) {
                 t.printStackTrace();
@@ -370,16 +405,18 @@ public class UserActivity extends Activity {
             showProgress(false);
 
             if (success) {
-                finish();
+                //finish();
                 if(signin) {
                     //attempted to sign in
+                    Log.d(TAG, "we should not be here");
                 } else {
                     //attempted to sign up
-
+                    dbHelper_.newUser(user_);
+                    displaySignOut(user_);
                 }
             } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                mEmailView.setError(getString(R.string.error_invalid_email));
+                mEmailView.requestFocus();
             }
         }
 

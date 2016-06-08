@@ -20,6 +20,8 @@
     <string name="repeat"> Repeat Password</string>
     <string name="sign_up">Sign Up</string>
     <string name="sign_in">Sign In</string>
+    <string name="sign_out">Sign Out</string>
+
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password cannot be empty</string>
     <string name="error_incorrect_password">This password is incorrect</string>
