@@ -7,13 +7,12 @@
         android:summary="Trip recording automatically starts upon power connection and stops upon disconnection"
         android:defaultValue="false" />
 
-    <!--
+
     <EditTextPreference
         android:key="pre_id"
-        android:summary="Your device id used to login to the website to view your uploaded trips"
+        android:summary="Your device id"
         android:title="Your device id"
         />
-        -->
 
 
 </PreferenceScreen>

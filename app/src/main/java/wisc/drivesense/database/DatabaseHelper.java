@@ -213,8 +213,15 @@ public class DatabaseHelper {
     }
 
     public List<Trip> loadTrips() {
+        User user = this.getCurrentUser();
         List<Trip> trips = new ArrayList<Trip>();
-        String selectQuery = "SELECT  * FROM " + TABLE_META;
+        if(user == null) {
+            Log.d(TAG, "display no trips");
+            return trips;
+        } else {
+            Log.d(TAG, user.toString());
+        }
+        String selectQuery = "SELECT  * FROM " + TABLE_META + " WHERE email = '" + user.email_ + "'";
         Cursor cursor = meta_.rawQuery(selectQuery, null);
         cursor.moveToFirst();
         do {
@@ -241,7 +248,7 @@ public class DatabaseHelper {
     /**
      * all about uploading
      */
-    public long nextTripToUpload() {
+    public long nextTripToUpload(String useremail) {
         String selectQuery = "SELECT  * FROM " + TABLE_META + " WHERE uploaded = 0;";
         Cursor cursor = meta_.rawQuery(selectQuery, null);
         cursor.moveToFirst();
@@ -251,6 +258,7 @@ public class DatabaseHelper {
                 break;
             }
             stime = cursor.getLong(0);
+            useremail = cursor.getString(6);
             break;
         } while (cursor.moveToNext());
         return stime;

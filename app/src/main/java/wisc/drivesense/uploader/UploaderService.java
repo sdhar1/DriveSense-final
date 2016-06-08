@@ -67,12 +67,13 @@ public class UploaderService extends Service {
     private void selectAndUploadOneFile(String pre) {
 
         String dbname = null;
+        String useremail = "";
         if(pre == null) {
             //upload summary first
             dbname = "summary";
         } else {
             //upload next trip
-            long time = dbHelper_.nextTripToUpload();
+            long time = dbHelper_.nextTripToUpload(useremail);
             if(-1 == time) {
                 stopService();
                 return;
@@ -84,7 +85,7 @@ public class UploaderService extends Service {
         int len = androidid.length();
         androidid = androidid.substring(len - 6);
         Log.d(TAG, "uploading" + dbname);
-        String[] params = new String[]{Constants.kUploadURL, androidid, dbname};
+        String[] params = new String[]{Constants.kUploadURL, androidid, dbname, useremail};
 
         httpRequest = new SendHttpRequestTask();
         httpRequest.execute(params);
@@ -121,6 +122,7 @@ public class UploaderService extends Service {
             String url = params[0];
             String devid = params[1];
             String dbname = params[2];
+            String email = params[3];
 
             byte[] byteArray = null;
             try {
@@ -144,6 +146,7 @@ public class UploaderService extends Service {
                 HttpClient client = new HttpClient(url);
                 client.connectForMultipart();
                 client.addFormPart("deviceid", devid);
+                client.addFormPart("email", email);
                 client.addFilePart("file", dbname + ".db", byteArray);
                 client.finishMultipart();
                 res = client.getResponse();
