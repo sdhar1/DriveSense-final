@@ -143,7 +143,7 @@ public class UserActivity extends Activity {
         mUserDetailView.setVisibility(View.VISIBLE);
         mEmailSignOutButton.setVisibility(View.VISIBLE);
 
-        mUserDetailView.setText("Current User: \n" + user.email_ + "\n" + user.firstname_ + " " + user.lastname_ + "\n");
+        mUserDetailView.setText("Current User: \n" + user.email_ + "\n" /*+ user.firstname_ + " " + user.lastname_ + "\n"*/);
     }
 
     private void displaySignUp() {
@@ -229,13 +229,11 @@ public class UserActivity extends Activity {
             curUser_ = new User();
             curUser_.email_ = email;
             curUser_.password_ = password;
-            dbHelper_.userLogin(curUser_);
-            curUser_ = dbHelper_.getCurrentUser();
-            if(curUser_ != null) {
-                displaySignOut(curUser_);
-            } else {
-                displaySignIn();
-            }
+
+            mAuthTask = new RegisterTask(curUser_, true);
+            mAuthTask.execute((Void) null);
+
+
         }
     }
 
@@ -307,12 +305,12 @@ public class UserActivity extends Activity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            User user = new User();
-            user.email_ = email;
-            user.password_ = password;
-            user.firstname_ = firstname;
-            user.lastname_ = lastname;
-            mAuthTask = new RegisterTask(user);
+            curUser_ = new User();
+            curUser_.email_ = email;
+            curUser_.password_ = password;
+            curUser_.firstname_ = firstname;
+            curUser_.lastname_ = lastname;
+            mAuthTask = new RegisterTask(curUser_, false);
             mAuthTask.execute((Void) null);
         }
     }
@@ -361,12 +359,13 @@ public class UserActivity extends Activity {
     public class RegisterTask extends AsyncTask<Void, Void, Boolean> {
 
         private User user_;
-        private boolean signin = false;
+        private boolean signin_ = false;
 
 
 
-        RegisterTask(User user) {
+        RegisterTask(User user, boolean issignin) {
             user_ = user;
+            signin_ = issignin;
         }
 
 
@@ -377,13 +376,20 @@ public class UserActivity extends Activity {
             String res = "";
             try {
                 // Simulate network access.
-                String url = Constants.kSignUpURL;
+                String url = "";
+                if(signin_) {
+                    url = Constants.kSignInURL;
+                } else {
+                    url = Constants.kSignUpURL;
+                }
                 HttpClient client = new HttpClient(url);
                 client.connectForMultipart();
                 client.addFormPart("email", user_.email_);
                 client.addFormPart("password", user_.password_);
-                client.addFormPart("firstname", user_.firstname_);
-                client.addFormPart("lastname", user_.lastname_);
+                if(!signin_) {
+                    client.addFormPart("firstname", user_.firstname_);
+                    client.addFormPart("lastname", user_.lastname_);
+                }
                 client.finishMultipart();
                 res = client.getResponse();
                 Log.d(TAG, res);
@@ -405,17 +411,27 @@ public class UserActivity extends Activity {
             showProgress(false);
 
             if (success) {
-                //finish();
-                if(signin) {
-                    //attempted to sign in
-                    Log.d(TAG, "we should not be here");
+                if(signin_) {
+                    //attempted remotely to sign in
+                    boolean res = dbHelper_.userLogin(user_);
+                    if(false == res) {
+                       //local failed
+                        dbHelper_.newUser(user_);
+                    }
+                    curUser_ = dbHelper_.getCurrentUser();
+                    if(curUser_ != null) {
+                        displaySignOut(curUser_);
+                    } else {
+                        displaySignIn();
+                    }
                 } else {
                     //attempted to sign up
                     dbHelper_.newUser(user_);
                     displaySignOut(user_);
                 }
+                finish();
             } else {
-                mEmailView.setError(getString(R.string.error_invalid_email));
+                mEmailView.setError(getString(R.string.error_login_failed));
                 mEmailView.requestFocus();
             }
         }

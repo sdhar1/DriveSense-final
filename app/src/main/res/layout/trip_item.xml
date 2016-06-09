@@ -12,17 +12,7 @@
         android:textSize="20sp"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="5dp"
-        />
-
-    <ImageView
-        android:id="@+id/icon"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginLeft="5dp"
-        android:src="@drawable/ic_action_car"
-        android:layout_below="@id/score"
+        android:layout_centerVertical="true"
         />
 
 
@@ -34,8 +24,8 @@
         android:textSize="20sp"
         android:paddingTop="10dp"
         android:paddingBottom="5dp"
-        android:layout_marginLeft="60dp"
-        android:layout_toRightOf="@id/icon"
+        android:layout_marginLeft="20dp"
+        android:layout_toRightOf="@id/score"
         />
 
     <TextView

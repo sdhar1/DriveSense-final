@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -35,9 +36,11 @@ import wisc.drivesense.utility.Trip;
 public class MapActivity extends Activity implements OnMapReadyCallback {
 
     static final LatLng madison_ = new LatLng(43.073052 , -89.401230);
-    //private GoogleMap map;
+    private GoogleMap map_ = null;
     private Trip trip_;
+    private List<Trace> points_;
     private static String TAG = "MapActivity";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,35 +61,47 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
         });
 
 
-        calculateRating(trip_);
+        points_ = calculateRating(trip_);
         TextView ratingView = (TextView) findViewById(R.id.rating);
         ratingView.setText(String.format("%.1f", trip_.getScore()));
 
+        map_ = null;
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
 
     }
 
-    private void calculateRating(Trip trip) {
+    private List<Trace> calculateRating(Trip trip) {
         Rating rating = new Rating(trip);
         List<Trace> gps = trip.getGPSPoints();
+        List<Trace> points = new ArrayList<Trace>();
         for(int i = 0; i < gps.size(); ++i) {
             Trace point = gps.get(i);
-            rating.readingData(point);
+            float rate = rating.readingData(point);
+            Trace trace = new Trace(5);
+            trace.time = point.time;
+            for(int j = 0; j < 3; ++j) {
+                trace.values[j] = point.values[j];
+            }
+            trace.values[3] = (float)trip.getScore();
+            trace.values[4] = rate;
+            points.add(trace);
         }
         Log.d(TAG, String.valueOf(trip.getScore()));
+        return points;
     }
 
 
     @Override
     public void onMapReady(GoogleMap map) {
-        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        map.setMyLocationEnabled(true);
-        map.setTrafficEnabled(true);
-        map.setIndoorEnabled(true);
-        map.setBuildingsEnabled(true);
-        map.getUiSettings().setZoomControlsEnabled(true);
+        map_ = map;
+        map_.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        map_.setMyLocationEnabled(true);
+        map_.setTrafficEnabled(true);
+        map_.setIndoorEnabled(true);
+        map_.setBuildingsEnabled(true);
+        map_.getUiSettings().setZoomControlsEnabled(true);
 
         LatLng start;
         int sz = trip_.getGPSPoints().size();
@@ -103,9 +118,9 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
                 .tilt( 0.0f )
                 .build();
 
-        map.moveCamera(CameraUpdateFactory.newCameraPosition(position));
+        map_.moveCamera(CameraUpdateFactory.newCameraPosition(position));
         if(sz >= 2) {
-            plotRoute(map);
+            plotRoute(2);
         }
     }
 
@@ -129,45 +144,92 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
     }
 
 
-    private void plotRoute(final GoogleMap map) {
+    private void plotRoute(int index) {
+        if(index < 2 || index > 4) {
+            Log.e(TAG, "invalid input");
+            return;
+        }
 
-        List<Trace> gps = trip_.getGPSPoints();
-        int sz = gps.size();
+        int sz = points_.size();
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
         int [] colors = {Color.GREEN, Color.BLUE, Color.YELLOW, Color.RED};
         List<BitmapDescriptor> bitmapDescriptors = producePoints(colors);
 
         // plot the route on the google map
         for (int i = 0; i < sz; i++) {
-            Trace point = gps.get(i);
-            double speed = point.values[2];
-            BitmapDescriptor bitmapDescriptor = bitmapDescriptors.get(Math.min((int)(speed/5.0), colors.length - 1));
+            Trace point = points_.get(i);
+
+            BitmapDescriptor bitmapDescriptor = null;
+
+            if(index == 2) {
+                //speed
+                double speed = point.values[2];
+                bitmapDescriptor = bitmapDescriptors.get(Math.min((int) (speed / 5.0), colors.length - 1));
+            } else if(index == 3) {
+                //score
+                double score = point.values[3];
+                bitmapDescriptor = bitmapDescriptors.get(Math.min((int)(10.0 - score), colors.length - 1));
+            } else {
+                //brake behaviors
+                double brake = point.values[4];
+                if(brake < 0) {
+                    bitmapDescriptor = bitmapDescriptors.get(3);
+                } else {
+                    bitmapDescriptor = bitmapDescriptors.get(0);
+                }
+            }
 
             MarkerOptions markerOptions = new MarkerOptions().position(new LatLng(point.values[0], point.values[1])).icon(bitmapDescriptor);
-            Marker marker = map.addMarker(markerOptions);
+            Marker marker = map_.addMarker(markerOptions);
             builder.include(marker.getPosition());
         }
 
         // market the starting and ending points
         LatLng start = new LatLng(trip_.getStartPoint().values[0], trip_.getStartPoint().values[1]);
         MarkerOptions startOptions = new MarkerOptions().position(start).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_car));
-        map.addMarker(startOptions);
+        map_.addMarker(startOptions);
         LatLng end = new LatLng(trip_.getEndPoint().values[0], trip_.getEndPoint().values[1]);
         MarkerOptions endOptions = new MarkerOptions().position(end);
-        map.addMarker(endOptions);
-
+        map_.addMarker(endOptions);
 
         // zoom the map to cover the whole trip
         final LatLngBounds bounds = builder.build();
-        map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+        map_.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             public void onMapLoaded() {
                 int padding = 100;
-                map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
-                //map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
+                map_.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
             }
         });
     }
+
+
+
+    public void onRadioButtonClicked(View view) {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
+        if(checked == false) {
+            return;
+        }
+        Log.d(TAG, view.getId() + " is checked: " + checked);
+        // Check which radio button was clicked
+        switch(view.getId()) {
+            case R.id.radioButtonSpeed:
+                plotRoute(2);
+                break;
+            case R.id.radioButtonScore:
+                plotRoute(3);
+                break;
+            case R.id.radioButtonBrake:
+                plotRoute(4);
+                break;
+            default:
+                break;
+        }
+    }
+
+
     protected void onDestroy() {
         super.onDestroy();
     }

@@ -12,22 +12,70 @@
     tools:showIn="@layout/activity_map">
 
     <TextView
+        android:id="@+id/display"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Display in Map:"
+        android:layout_centerHorizontal="true"
+        android:textSize="20sp"
+        android:layout_marginTop="3dp"
+        />
+
+
+
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/display"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal">
+        <RadioButton
+            android:id="@+id/radioButtonSpeed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Speed"
+            android:checked="true"
+            android:onClick="onRadioButtonClicked"
+            />
+        <RadioButton
+            android:id="@+id/radioButtonScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Score"
+            android:onClick="onRadioButtonClicked"
+            />
+        <RadioButton
+            android:id="@+id/radioButtonBrake"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Brake"
+            android:onClick="onRadioButtonClicked"
+            />
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/display"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Your Rating (out of 10.0):"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/rating"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="0.0"
-        android:id="@+id/rating"
-        android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:textSize="60sp"
+        android:layout_below="@id/score"
+        android:textSize="40sp"
         android:textAlignment="center" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Your Rating (out of 10.0):"
-        android:layout_above="@id/rating"
-        android:layout_centerHorizontal="true"
-        android:textSize="15sp" />
+
+
 </RelativeLayout>
