@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import wisc.drivesense.database.DatabaseHelper;
 import wisc.drivesense.utility.Constants;
+import wisc.drivesense.utility.User;
 
 /**
  * Created by lkang on 3/30/16.
@@ -67,7 +68,8 @@ public class UploaderService extends Service {
     private void selectAndUploadOneFile(String pre) {
 
         String dbname = null;
-        String useremail = "";
+        User user = dbHelper_.getCurrentUser();
+        String useremail = user.email_;
         if(pre == null) {
             //upload summary first
             dbname = "summary";
@@ -147,7 +149,7 @@ public class UploaderService extends Service {
                 client.connectForMultipart();
                 client.addFormPart("deviceid", devid);
                 client.addFormPart("email", email);
-                client.addFilePart("file", dbname + ".db", byteArray);
+                client.addFilePart("uploads", dbname + ".db", byteArray);
                 client.finishMultipart();
                 res = client.getResponse();
             } catch(Throwable t) {
@@ -156,7 +158,7 @@ public class UploaderService extends Service {
             }
             //expect the server returns an okay package
             //return a null if not okay
-            if(null != res && res.contains("okay")) {
+            if(null != res && res.contains("success")) {
                 return dbname;
             } else {
                 return null;

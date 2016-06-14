@@ -26,7 +26,6 @@ public class TripService extends Service {
 
     private final Binder _binder = new TripServiceBinder();
     private AtomicBoolean _isRunning = new AtomicBoolean(false);
-    private AtomicBoolean isDrving_ = new AtomicBoolean(false);
 
     private final String TAG = "Trip Service";
 

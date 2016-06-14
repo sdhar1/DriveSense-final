@@ -249,7 +249,7 @@ public class DatabaseHelper {
      * all about uploading
      */
     public long nextTripToUpload(String useremail) {
-        String selectQuery = "SELECT  * FROM " + TABLE_META + " WHERE uploaded = 0;";
+        String selectQuery = "SELECT  * FROM " + TABLE_META + " WHERE uploaded = 0 and " + " email like '" + useremail + "';";
         Cursor cursor = meta_.rawQuery(selectQuery, null);
         cursor.moveToFirst();
         long stime = -1;
@@ -308,7 +308,18 @@ public class DatabaseHelper {
         return user;
     }
 
+    public boolean hasUser(String email) {
+        String selectQuery = "SELECT  * FROM " + TABLE_USER + " WHERE email like '" + email + "'";
+        Cursor cursor = meta_.rawQuery(selectQuery, null);
+        cursor.moveToFirst();
+        if(cursor.getCount() == 0) return false;
+        else return true;
+    }
+
     public boolean userLogin(User user) {
+        if(!hasUser(user.email_)) {
+            return false;
+        }
         Log.d(TAG, "user login processing in database");
         ContentValues data = new ContentValues();
         data.put("loginstatus", 1);
@@ -318,8 +329,11 @@ public class DatabaseHelper {
             meta_.update(TABLE_USER, data, where, whereArgs);
             return true;
         } catch (Exception e) {
+            Log.d(TAG, e.toString());
             return false;
         }
+
+
     }
 
     public boolean userLogout(User user) {

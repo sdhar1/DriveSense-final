@@ -372,7 +372,6 @@ public class UserActivity extends Activity {
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
-            Log.d(TAG, "registering");
             String res = "";
             try {
                 // Simulate network access.
@@ -398,7 +397,7 @@ public class UserActivity extends Activity {
                 return false;
             }
 
-            if(res == null || !res.contains("okay")) {
+            if(res == null || !res.contains("success")) {
                 return false;
             } else {
                 return true;
