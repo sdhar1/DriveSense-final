@@ -109,14 +109,26 @@ public class TripService extends Service {
             Trace trace = new Trace();
             trace.fromJson(message);
 
+            if(trace.type.compareTo(Trace.GPS) == 0) {
+                Log.d(TAG, "Got message: " + trace.toJson());
+                trace = calculateTraceByGPS(trace);
+                sendTrip(trace);
+            }
             if(dbHelper_.isOpen()) {
                 dbHelper_.insertSensorData(trace);
             }
-            if(trace.type.compareTo(Trace.GPS) == 0) {
-                Log.d(TAG, "Got message: " + trace.toJson());
-                curtrip_.addGPS(trace);
-                sendTrip(trace);
-            }
+        }
+
+        private Trace calculateTraceByGPS(Trace trace) {
+            int brake = curtrip_.addGPS(trace);
+            //create a new trace for GPS, since we use GPS to capture driving behaviors
+            Trace ntrace = new Trace(5);
+            ntrace.type = trace.type;
+            ntrace.time = trace.time;
+            System.arraycopy(trace.values, 0, ntrace.values, 0, trace.values.length);
+            ntrace.values[3] = (float)curtrip_.getScore();
+            ntrace.values[4] = (float)brake;
+            return ntrace;
         }
     };
 

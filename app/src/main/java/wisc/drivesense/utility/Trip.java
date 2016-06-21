@@ -50,7 +50,7 @@ public class Trip implements Serializable {
     public double getSpeed() {return speed_ * Constants.kMeterPSToMilePH;}
 
 
-    public void addGPS(Trace trace) {
+    public int addGPS(Trace trace) {
 
         gps_.add(trace);
         if(start_ == null) {
@@ -67,7 +67,7 @@ public class Trip implements Serializable {
         }
 
         //rate the trip
-        rating.readingData(trace);
+        return rating.readingData(trace);
     }
 
 

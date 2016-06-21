@@ -60,18 +60,17 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
             }
         });
 
-
-        points_ = calculateRating(trip_);
+        points_ = trip_.getGPSPoints();
+        //points_ = calculateRating(trip_);
         TextView ratingView = (TextView) findViewById(R.id.rating);
         ratingView.setText(String.format("%.1f", trip_.getScore()));
 
         map_ = null;
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
     }
 
+    /*
     private List<Trace> calculateRating(Trip trip) {
         Rating rating = new Rating(trip);
         List<Trace> gps = trip.getGPSPoints();
@@ -91,7 +90,7 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
         Log.d(TAG, String.valueOf(trip.getScore()));
         return points;
     }
-
+    */
 
     @Override
     public void onMapReady(GoogleMap map) {
@@ -147,6 +146,10 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
     private void plotRoute(int index) {
         if(index < 2 || index > 4) {
             Log.e(TAG, "invalid input");
+            return;
+        }
+        if(points_ == null || points_.size() <=2) {
+            Log.e(TAG, "invalid GPS points");
             return;
         }
 
