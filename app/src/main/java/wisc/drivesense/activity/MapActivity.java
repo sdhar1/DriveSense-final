@@ -61,6 +61,10 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
         });
 
         points_ = trip_.getGPSPoints();
+
+        //crash when there is no gps
+        // Log.d(TAG, points_.get(0).toJson());
+
         //points_ = calculateRating(trip_);
         TextView ratingView = (TextView) findViewById(R.id.rating);
         ratingView.setText(String.format("%.1f", trip_.getScore()));
@@ -118,7 +122,12 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
                 .build();
 
         map_.moveCamera(CameraUpdateFactory.newCameraPosition(position));
+
+
         if(sz >= 2) {
+            //deal with orientation change
+            RadioButton rButton = (RadioButton) findViewById(R.id.radioButtonSpeed);
+            rButton.setChecked(true);
             plotRoute(2);
         }
     }

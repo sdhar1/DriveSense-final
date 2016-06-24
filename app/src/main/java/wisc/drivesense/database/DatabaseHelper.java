@@ -174,9 +174,9 @@ public class DatabaseHelper {
             if(cursor.getCount() == 0) {
                 break;
             }
-            Trace trace = new Trace();
+            Trace trace = new Trace(5);
             trace.time = cursor.getLong(0);
-            for(int i = 0; i < 3; ++i) {
+            for(int i = 0; i < 5; ++i) {
                 trace.values[i] = cursor.getFloat(i + 1);
             }
             trace.type = Trace.GPS;
