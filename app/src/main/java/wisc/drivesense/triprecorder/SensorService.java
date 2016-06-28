@@ -95,7 +95,7 @@ public class SensorService extends Service implements SensorEventListener, Locat
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if(isRunning_.get()==false/* || dbHelper_ == null*/) {
+        if(isRunning_.get()==false) {
             return;
         }
 
@@ -125,8 +125,9 @@ public class SensorService extends Service implements SensorEventListener, Locat
             sendTrace(trace);
 
         } else if (type == Sensor.TYPE_GYROSCOPE && (time - tLastGyroscope) >= Constants.kRecordingInterval) {
-            tLastGyroscope = time;
+            //Log.e(TAG, tLastGyroscope + "," + time + "," + String.valueOf(time - tLastGyroscope));
 
+            tLastGyroscope = time;
 
             Trace trace = new Trace(3);
             trace.time = time;
