@@ -187,7 +187,8 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
                 //brake behaviors
                 double brake = point.values[4];
                 if(brake < 0) {
-                    bitmapDescriptor = bitmapDescriptors.get(3);
+                    //bitmapDescriptor = bitmapDescriptors.get(3);
+                    bitmapDescriptor =  BitmapDescriptorFactory.fromResource(R.drawable.Attention_96);
                 } else {
                     bitmapDescriptor = bitmapDescriptors.get(0);
                 }

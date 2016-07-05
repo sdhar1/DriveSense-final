@@ -15,6 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -168,6 +169,15 @@ public class MainActivity extends AppCompatActivity {
             curtrip_.addGPS(trace);
             tvSpeed.setText(String.format("%.1f", curtrip_.getSpeed()));
             tvMiles.setText(String.format("%.2f", curtrip_.getDistance()));
+
+
+            if(trace.values[2] < 0) {
+                Toast toast = new Toast(MainActivity.this);
+                ImageView view = new ImageView(MainActivity.this);
+                view.setImageResource(R.drawable.Attention_512);
+                toast.setView(view);
+                toast.show();
+            }
         }
     };
 
