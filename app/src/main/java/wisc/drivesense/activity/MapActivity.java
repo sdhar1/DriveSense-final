@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import wisc.drivesense.R;
-import wisc.drivesense.utility.Rating;
 import wisc.drivesense.utility.Trace;
 import wisc.drivesense.utility.Trip;
 
@@ -188,7 +187,7 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
                 double brake = point.values[4];
                 if(brake < 0) {
                     //bitmapDescriptor = bitmapDescriptors.get(3);
-                    bitmapDescriptor =  BitmapDescriptorFactory.fromResource(R.drawable.Attention_96);
+                    bitmapDescriptor =  BitmapDescriptorFactory.fromResource(R.drawable.attention_96);
                 } else {
                     bitmapDescriptor = bitmapDescriptors.get(0);
                 }

@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -20,6 +21,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.concurrent.TimeUnit;
 
 import wisc.drivesense.R;
 import wisc.drivesense.triprecorder.TripService;
@@ -37,8 +40,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static String TAG = "MainActivity";
 
-    private TextView tvSpeed = null;
-    private TextView tvMiles = null;
+    private TextView tvScore = null;
+    private TextView tvTime = null;
     private Button btnStart = null;
 
     @Override
@@ -46,8 +49,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        tvSpeed = (TextView) findViewById(R.id.textspeed);
-        tvMiles = (TextView) findViewById(R.id.milesdriven);
+        tvScore = (TextView) findViewById(R.id.textscore);
+        tvTime = (TextView) findViewById(R.id.duration);
         btnStart = (Button) findViewById(R.id.btnstart);
 
         android.support.v7.widget.Toolbar mToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.maintoolbar);
@@ -134,6 +137,14 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "Start driving detection service!!!");
             startService(mTripServiceIntent);
         }
+
+        startTimer();
+
+        Toast toast = new Toast(MainActivity.this);
+        ImageView view = new ImageView(MainActivity.this);
+        view.setImageResource(R.drawable.attention_512);
+        toast.setView(view);
+        toast.show();
     }
 
     private synchronized void stopRunning() {
@@ -141,8 +152,9 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Stopping live data..");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
 
-        tvSpeed.setText(String.format("%.1f", 0.0));
-        tvMiles.setText(String.format("%.2f", 0.00));
+        tvScore.setText(String.format("%.1f", 10.0));
+        //tvTime.setText(String.format("%.2f", 0.00));
+        handler.removeCallbacks(runnable);
 
 
         if(MainActivity.isServiceRunning(this, TripService.class) == true) {
@@ -167,14 +179,16 @@ public class MainActivity extends AppCompatActivity {
             Trace trace = new Trace();
             trace.fromJson(message);
             curtrip_.addGPS(trace);
-            tvSpeed.setText(String.format("%.1f", curtrip_.getSpeed()));
-            tvMiles.setText(String.format("%.2f", curtrip_.getDistance()));
+            tvScore.setText(String.format("%.1f", curtrip_.getScore()));
 
+            long ms = trace.time - curtrip_.getStartTime();
+            tvTime.setText(timeFormat(ms));
 
             if(trace.values[2] < 0) {
                 Toast toast = new Toast(MainActivity.this);
                 ImageView view = new ImageView(MainActivity.this);
-                view.setImageResource(R.drawable.Attention_512);
+                view.setImageResource(R.drawable.attention_512);
+
                 toast.setView(view);
                 toast.show();
             }
@@ -228,7 +242,27 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    private Handler handler = null;
+    private Runnable runnable;
+    private String timeFormat(long millis) {
+        String hms = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis),
+                TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
+                TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
+        return hms;
+    }
 
+    public void startTimer() {
+        handler = new Handler();
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                handler.postDelayed(this, 1000);
+                long ms = System.currentTimeMillis() - curtrip_.getStartTime();
+                tvTime.setText(timeFormat(ms));
+            }
+        };
+        handler.postDelayed(runnable, 0);
+    }
 
 }
 
