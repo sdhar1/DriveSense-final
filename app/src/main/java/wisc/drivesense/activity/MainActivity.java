@@ -140,11 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
         startTimer();
 
-        Toast toast = new Toast(MainActivity.this);
-        ImageView view = new ImageView(MainActivity.this);
-        view.setImageResource(R.drawable.attention_512);
-        toast.setView(view);
-        toast.show();
+        //displayWarning();
     }
 
     private synchronized void stopRunning() {
@@ -166,6 +162,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void displayWarning() {
+        Toast toast = new Toast(MainActivity.this);
+        ImageView view = new ImageView(MainActivity.this);
+        view.setImageResource(R.drawable.attention_512);
+
+        toast.setView(view);
+        toast.show();
+    }
+
     //
     /**
      * where we get the sensor data
@@ -185,12 +190,7 @@ public class MainActivity extends AppCompatActivity {
             tvTime.setText(timeFormat(ms));
 
             if(trace.values[2] < 0) {
-                Toast toast = new Toast(MainActivity.this);
-                ImageView view = new ImageView(MainActivity.this);
-                view.setImageResource(R.drawable.attention_512);
-
-                toast.setView(view);
-                toast.show();
+                displayWarning();
             }
         }
     };
@@ -257,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 handler.postDelayed(this, 1000);
-                long ms = System.currentTimeMillis() - curtrip_.getStartTime();
+                long ms = System.currentTimeMillis() - curtrip_.getStartTime() + 128000;
                 tvTime.setText(timeFormat(ms));
             }
         };

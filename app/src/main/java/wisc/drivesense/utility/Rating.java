@@ -43,7 +43,7 @@ public class Rating implements Serializable {
 
         lastSpeed_ = curSpeed;
         lastTrace_ = trace;
-        if(a < -2.0) {
+        if(a < -2.5) {
             double curscore = 3.0 - Math.min(3.0, Math.abs(a));
             score_ = (score_ * (counter_ - 1) + curscore * 10.0)/counter_;
             trip_.setScore(score_);
