@@ -29,4 +29,7 @@ public class Constants {
 
     public static final String kDBFolder = "/data/data/wisc.drivesense/databases/";
 
+    public static final int kNumberOfTripsDisplay = 100;
+    public static final String kDefaultEmail = "";
+
 }

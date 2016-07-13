@@ -102,6 +102,8 @@ public class DatabaseHelper {
         db_.execSQL(CREATE_TABLE_GPS);
         db_.execSQL(CREATE_TABLE_ROTATION_MATRIX);
     }
+
+
     public void closeDatabase() {
         this.opened = false;
         if(meta_ != null && meta_.isOpen()) {
@@ -128,8 +130,8 @@ public class DatabaseHelper {
         if(user != null) {
             values.put("email", user.email_);
         } else {
-            //not insert the trip if not logged in
-            return;
+            //return;
+            values.put("email", "");
         }
         meta_.insert(TABLE_META, null, values);
     }
@@ -186,6 +188,33 @@ public class DatabaseHelper {
         return res;
     }
 
+    private Trip constructTripByCursor(Cursor cursor) {
+        long stime = cursor.getLong(0);
+        long etime = cursor.getLong(1);
+        double dist = cursor.getDouble(2);
+        double score = cursor.getDouble(3);
+        int deleted = cursor.getInt(4);
+        Trip trip = new Trip(stime);
+        trip.setGPSPoints(this.getGPSPoints(stime));
+        trip.setScore(score);
+        trip.setStatus(deleted == 1? 0 : 1);
+        return trip;
+    }
+
+    public Trip getTrip(long time) {
+        String selectQuery = "SELECT  * FROM " + TABLE_META + " WHERE starttime = " + time + ";";
+        Cursor cursor = meta_.rawQuery(selectQuery, null);
+        cursor.moveToFirst();
+        Trip trip = null;
+        do {
+            if(cursor.getCount() == 0) {
+                break;
+            }
+            trip = constructTripByCursor(cursor);
+        } while (cursor.moveToNext());
+        return trip;
+    }
+
 
 
 
@@ -200,15 +229,13 @@ public class DatabaseHelper {
         String where = "starttime = ? ";
         String[] whereArgs = {String.valueOf(time)};
         meta_.update(TABLE_META, data, where, whereArgs);
-
-        //we also delete the trip
-        //deleteTrip(time);
     }
 
     /**
-     * @ delete it upon removal, only if the trip is deleted and uploaded
+     * @  only if the trip is imcomplete
      * @param time
      */
+
     public void deleteTrip(long time) {
         SQLiteDatabase.deleteDatabase(new File(Constants.kDBFolder + String.valueOf(time).concat(".db")));
     }
@@ -222,25 +249,22 @@ public class DatabaseHelper {
         } else {
             Log.d(TAG, user.toString());
         }
-        String selectQuery = "SELECT  * FROM " + TABLE_META + " WHERE email = '" + user.email_ + "'";
+        String selectQuery = "SELECT  * FROM " + TABLE_META + " WHERE email = '" + user.email_ + "' or email = '" + "' order by starttime desc;";
         Cursor cursor = meta_.rawQuery(selectQuery, null);
         cursor.moveToFirst();
         do {
             if(cursor.getCount() == 0) {
                 break;
             }
-            long stime = cursor.getLong(0);
-            long etime = cursor.getLong(1);
-            double dist = cursor.getDouble(2);
-            double score = cursor.getDouble(3);
             int deleted = cursor.getInt(4);
             if(deleted == 1) {
                 continue;
             }
-            Trip trip = new Trip(stime);
-            trip.setGPSPoints(this.getGPSPoints(stime));
-            trip.setScore(score);
+            Trip trip = constructTripByCursor(cursor);
             trips.add(trip);
+            if(trips.size() >= Constants.kNumberOfTripsDisplay) {
+                break;
+            }
         } while (cursor.moveToNext());
         return trips;
     }
@@ -259,13 +283,16 @@ public class DatabaseHelper {
                 break;
             }
             stime = cursor.getLong(0);
-            useremail = cursor.getString(6);
             break;
         } while (cursor.moveToNext());
         return stime;
     }
 
 
+    /**
+     * label the meta table that the trip has been uploaded, and remove all the sensor tables, leave gps table
+     * @param time
+     */
     public void tripUploadDone(long time) {
         Log.d(TAG, "tripUploadDone");
         ContentValues data = new ContentValues();
@@ -273,6 +300,14 @@ public class DatabaseHelper {
         String where = "starttime = ? ";
         String[] whereArgs = {String.valueOf(time)};
         meta_.update(TABLE_META, data, where, whereArgs);
+
+        //drop the sensor tables to avoid space waste
+        String dropsql = "DROP TABLE IF EXISTS " + TABLE_ACCELEROMETER + ";" +
+                "DROP TABLE IF EXISTS " + TABLE_GYROSCOPE + ";" +
+                "DROP TABLE IF EXISTS " + TABLE_MAGNETOMETER + ";" +
+                "DROP TABLE IF EXISTS " + TABLE_ROTATION_MATRIX + ";";
+        db_ = SQLiteDatabase.openOrCreateDatabase(Constants.kDBFolder + String.valueOf(time).concat(".db"), null, null);
+        db_.execSQL(dropsql);
     }
 
 

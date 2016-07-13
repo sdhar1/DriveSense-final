@@ -82,10 +82,11 @@ public class HttpClient {
     public String getResponse() {
         try {
             InputStream is = con.getInputStream();
-            byte[] b1 = new byte[1024];
+            byte[] b1 = new byte[1];
             StringBuffer buffer = new StringBuffer();
-            while (is.read(b1) != -1)
+            while (is.read(b1) != -1) {
                 buffer.append(new String(b1));
+            }
             con.disconnect();
             return buffer.toString();
         } catch (Exception e) {
@@ -93,34 +94,4 @@ public class HttpClient {
             return null;
         }
     }
-
-
-    /*
-    public byte[] downloadImage(String imgName) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            System.out.println("URL ["+url+"] - Name ["+imgName+"]");
-
-            HttpURLConnection con = (HttpURLConnection) ( new URL(url)).openConnection();
-            con.setRequestMethod("POST");
-            con.setDoInput(true);
-            con.setDoOutput(true);
-            con.connect();
-            con.getOutputStream().write( ("name=" + imgName).getBytes());
-
-            InputStream is = con.getInputStream();
-            byte[] b = new byte[1024];
-
-            while ( is.read(b) != -1)
-                baos.write(b);
-
-            con.disconnect();
-        }
-        catch(Throwable t) {
-            t.printStackTrace();
-        }
-
-        return baos.toByteArray();
-    }
-    */
 }

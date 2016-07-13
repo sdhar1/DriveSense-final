@@ -73,27 +73,6 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
         mapFragment.getMapAsync(this);
     }
 
-    /*
-    private List<Trace> calculateRating(Trip trip) {
-        Rating rating = new Rating(trip);
-        List<Trace> gps = trip.getGPSPoints();
-        List<Trace> points = new ArrayList<Trace>();
-        for(int i = 0; i < gps.size(); ++i) {
-            Trace point = gps.get(i);
-            float rate = rating.readingData(point);
-            Trace trace = new Trace(5);
-            trace.time = point.time;
-            for(int j = 0; j < 3; ++j) {
-                trace.values[j] = point.values[j];
-            }
-            trace.values[3] = (float)trip.getScore();
-            trace.values[4] = rate;
-            points.add(trace);
-        }
-        Log.d(TAG, String.valueOf(trip.getScore()));
-        return points;
-    }
-    */
 
     @Override
     public void onMapReady(GoogleMap map) {
@@ -186,8 +165,8 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
                 //brake behaviors
                 double brake = point.values[4];
                 if(brake < 0) {
-                    //bitmapDescriptor = bitmapDescriptors.get(3);
-                    bitmapDescriptor =  BitmapDescriptorFactory.fromResource(R.drawable.attention_24);
+                    bitmapDescriptor = bitmapDescriptors.get(3);
+                    //bitmapDescriptor =  BitmapDescriptorFactory.fromResource(R.drawable.attention_24);
                 } else {
                     bitmapDescriptor = bitmapDescriptors.get(0);
                 }

@@ -42,8 +42,6 @@ public class HistoryActivity extends Activity {
             }
         });
 
-
-
         ListView listView = (ListView)findViewById(R.id.listView);
 
         dbHelper_ = new DatabaseHelper();

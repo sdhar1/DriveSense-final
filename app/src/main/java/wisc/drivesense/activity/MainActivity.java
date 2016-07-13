@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
     //get the selected dropdown list value
     public void addListenerOnButton() {
 
+
         //final TextView txtView= (TextView) findViewById(R.id.textspeed);
         btnStart.setOnClickListener(new View.OnClickListener() {
 
@@ -84,7 +85,8 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Disable Auto Mode in Settings", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (started == 0) {
+                Log.d(TAG, "start button clicked");
+                if (MainActivity.isServiceRunning(MainActivity.this, TripService.class) == false) {
                     //Toast.makeText(MainActivity.this, "Service Started!", Toast.LENGTH_SHORT).show();
                     startRunning();
                     started = 1;
@@ -150,8 +152,9 @@ public class MainActivity extends AppCompatActivity {
 
         tvScore.setText(String.format("%.1f", 10.0));
         //tvTime.setText(String.format("%.2f", 0.00));
-        handler.removeCallbacks(runnable);
-
+        if(handler != null) {
+            handler.removeCallbacks(runnable);
+        }
 
         if(MainActivity.isServiceRunning(this, TripService.class) == true) {
             Log.d(TAG, "Stop driving detection service!!!");
@@ -231,15 +234,31 @@ public class MainActivity extends AppCompatActivity {
 
 
     protected void onPause() {
+        Log.d(TAG, "onPuase");
         super.onPause();
     }
     protected void onResume() {
+        Log.d(TAG, "onResume");
         super.onResume();
+        /*
+        if(curtrip_ == null) {
+            Log.d(TAG, "curtrip is null");
+        }
+
+        if(MainActivity.isServiceRunning(this, TripService.class) == true) {
+            btnStart.setBackgroundResource(R.drawable.stop_button);
+            btnStart.setText(R.string.stop_button);
+        } else {
+            btnStart.setBackgroundResource(R.drawable.start_button);
+            btnStart.setText(R.string.start_button);
+        }
+        */
     }
     @Override
     protected void onDestroy() {
         Log.d(TAG, "onDestroy");
         super.onDestroy();
+        //stopRunning();
     }
 
     private Handler handler = null;
@@ -257,7 +276,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 handler.postDelayed(this, 1000);
-                long ms = System.currentTimeMillis() - curtrip_.getStartTime() + 128000;
+                long ms = System.currentTimeMillis() - curtrip_.getStartTime();
                 tvTime.setText(timeFormat(ms));
             }
         };

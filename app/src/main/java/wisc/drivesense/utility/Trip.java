@@ -14,6 +14,7 @@ public class Trip implements Serializable {
     private double distance_ = 0; // in miles
     private double speed_ = 0.0;
     private double score_ = 10.0;
+    private int status_ = 1;
     private List<Trace> gps_;
     private Trace start_ = null;
     private Trace dest_ = new Trace();
@@ -31,6 +32,7 @@ public class Trip implements Serializable {
     }
 
     public void setScore(double score) {this.score_ = score;}
+    public void setStatus(int status) {this.status_ = status;}
 
 
     public long getStartTime() {
@@ -44,9 +46,14 @@ public class Trip implements Serializable {
     }
     public double getScore() {return this.score_;}
     public long getDuration() {return this.endTime_ - this.startTime_;}
+    public int getStatus() {return this.status_;}
+
 
     public Trace getStartPoint() {return start_;}
     public Trace getEndPoint() {return dest_;}
+
+
+
     public double getSpeed() {return speed_ * Constants.kMeterPSToMilePH;}
 
 
