@@ -116,6 +116,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
+
+        if(SettingActivity.isAutoMode(MainActivity.this)) {
+            Toast.makeText(MainActivity.this, "Disable Auto Mode to Stop", Toast.LENGTH_SHORT).show();
+            return;
+        }
         mTripServiceIntent = new Intent(this, TripService.class);
         stopService(mTripServiceIntent);
     }
