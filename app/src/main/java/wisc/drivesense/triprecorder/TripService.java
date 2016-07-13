@@ -22,9 +22,9 @@ import wisc.drivesense.utility.Trip;
 public class TripService extends Service {
 
     private DatabaseHelper dbHelper_ = null;
-    private static Trip curtrip_ = null;
+    public Trip curtrip_ = null;
 
-    private final Binder _binder = new TripServiceBinder();
+    public Binder _binder = new TripServiceBinder();
     private AtomicBoolean _isRunning = new AtomicBoolean(false);
 
     private final String TAG = "Trip Service";
@@ -39,6 +39,7 @@ public class TripService extends Service {
     }
 
     public class TripServiceBinder extends Binder {
+        public TripService getService() {return TripService.this;}
         public Trip getTrip() {
             return curtrip_;
         }

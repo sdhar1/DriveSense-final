@@ -3,11 +3,14 @@ package wisc.drivesense.activity;
 
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -34,14 +37,14 @@ import wisc.drivesense.utility.Trip;
 public class MainActivity extends AppCompatActivity {
 
     //for display usage only, all calculation is conducted in TripService
+
     private Trip curtrip_ = null;
 
-    private int started = 0;
 
     private static String TAG = "MainActivity";
 
-    private TextView tvScore = null;
-    private TextView tvTime = null;
+    private TextView tvSpeed = null;
+    private TextView tvMile = null;
     private Button btnStart = null;
 
     @Override
@@ -49,8 +52,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        tvScore = (TextView) findViewById(R.id.textscore);
-        tvTime = (TextView) findViewById(R.id.duration);
+        tvSpeed = (TextView) findViewById(R.id.textspeed);
+        tvMile = (TextView) findViewById(R.id.milesdriven);
         btnStart = (Button) findViewById(R.id.btnstart);
 
         android.support.v7.widget.Toolbar mToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.maintoolbar);
@@ -63,6 +66,59 @@ public class MainActivity extends AppCompatActivity {
         addListenerOnButton();
     }
 
+
+    private class TripServiceConnection implements ServiceConnection {
+        private TripService.TripServiceBinder binder = null;
+
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            binder = ((TripService.TripServiceBinder)service);
+            curtrip_ = binder.getTrip();
+        }
+        public void onServiceDisconnected(ComponentName className) {
+            binder = null;
+        }
+    };
+    private Intent mTripServiceIntent = null;
+    private ServiceConnection mTripConnection = null;
+
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onSTop");
+
+    }
+
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPuase");
+        if(mTripConnection != null) {
+            unbindService(mTripConnection);
+        }
+    }
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume");
+
+
+        if (MainActivity.isServiceRunning(this, TripService.class) == true) {
+            btnStart.setBackgroundResource(R.drawable.stop_button);
+            btnStart.setText(R.string.stop_button);
+            //if the service is running, then start the connnection
+            mTripServiceIntent = new Intent(this, TripService.class);
+            mTripConnection = new TripServiceConnection();
+            bindService(mTripServiceIntent, mTripConnection, Context.BIND_AUTO_CREATE);
+        } else {
+            btnStart.setBackgroundResource(R.drawable.start_button);
+            btnStart.setText(R.string.start_button);
+        }
+    }
+
+
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
+        mTripServiceIntent = new Intent(this, TripService.class);
+        stopService(mTripServiceIntent);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -89,16 +145,14 @@ public class MainActivity extends AppCompatActivity {
                 if (MainActivity.isServiceRunning(MainActivity.this, TripService.class) == false) {
                     //Toast.makeText(MainActivity.this, "Service Started!", Toast.LENGTH_SHORT).show();
                     startRunning();
-                    started = 1;
                     btnStart.setBackgroundResource(R.drawable.stop_button);
                     btnStart.setText(R.string.stop_button);
                 } else {
                     //Toast.makeText(MainActivity.this, "Service Stopped!", Toast.LENGTH_SHORT).show();
+                    showDriveRating();
                     stopRunning();
-                    started = 0;
                     btnStart.setBackgroundResource(R.drawable.start_button);
                     btnStart.setText(R.string.start_button);
-                    showDriveRating();
                 }
             }
         });
@@ -127,22 +181,19 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-    private static Intent mTripServiceIntent = null;
     private synchronized void startRunning() {
         Log.d(TAG, "start running");
 
-        curtrip_ = new Trip(System.currentTimeMillis());
+        //curtrip_ = new Trip(System.currentTimeMillis());
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("driving"));
 
         mTripServiceIntent = new Intent(this, TripService.class);
+        mTripConnection = new TripServiceConnection();
         if(MainActivity.isServiceRunning(this, TripService.class) == false) {
             Log.d(TAG, "Start driving detection service!!!");
+            bindService(mTripServiceIntent, mTripConnection, Context.BIND_AUTO_CREATE);
             startService(mTripServiceIntent);
         }
-
-        startTimer();
-
-        //displayWarning();
     }
 
     private synchronized void stopRunning() {
@@ -150,15 +201,14 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Stopping live data..");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
 
-        tvScore.setText(String.format("%.1f", 10.0));
-        //tvTime.setText(String.format("%.2f", 0.00));
-        if(handler != null) {
-            handler.removeCallbacks(runnable);
-        }
+        tvSpeed.setText(String.format("%.1f", 0.0));
+        tvMile.setText(String.format("%.2f", 0.00));
 
         if(MainActivity.isServiceRunning(this, TripService.class) == true) {
             Log.d(TAG, "Stop driving detection service!!!");
             stopService(mTripServiceIntent);
+            unbindService(mTripConnection);
+            mTripConnection = null;
             mTripServiceIntent = null;
         }
 
@@ -186,12 +236,11 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "Got message: " + message);
             Trace trace = new Trace();
             trace.fromJson(message);
-            curtrip_.addGPS(trace);
-            tvScore.setText(String.format("%.1f", curtrip_.getScore()));
-
-            long ms = trace.time - curtrip_.getStartTime();
-            tvTime.setText(timeFormat(ms));
-
+            if(curtrip_ != null) {
+                curtrip_.addGPS(trace);
+                tvSpeed.setText(String.format("%.1f", curtrip_.getSpeed()));
+                tvMile.setText(String.format("%.1f", curtrip_.getDistance()));
+            }
             if(trace.values[2] < 0) {
                 displayWarning();
             }
@@ -232,35 +281,7 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-
-    protected void onPause() {
-        Log.d(TAG, "onPuase");
-        super.onPause();
-    }
-    protected void onResume() {
-        Log.d(TAG, "onResume");
-        super.onResume();
-        /*
-        if(curtrip_ == null) {
-            Log.d(TAG, "curtrip is null");
-        }
-
-        if(MainActivity.isServiceRunning(this, TripService.class) == true) {
-            btnStart.setBackgroundResource(R.drawable.stop_button);
-            btnStart.setText(R.string.stop_button);
-        } else {
-            btnStart.setBackgroundResource(R.drawable.start_button);
-            btnStart.setText(R.string.start_button);
-        }
-        */
-    }
-    @Override
-    protected void onDestroy() {
-        Log.d(TAG, "onDestroy");
-        super.onDestroy();
-        //stopRunning();
-    }
-
+    /*
     private Handler handler = null;
     private Runnable runnable;
     private String timeFormat(long millis) {
@@ -269,20 +290,22 @@ public class MainActivity extends AppCompatActivity {
                 TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
         return hms;
     }
-
     public void startTimer() {
         handler = new Handler();
         runnable = new Runnable() {
             @Override
             public void run() {
                 handler.postDelayed(this, 1000);
-                long ms = System.currentTimeMillis() - curtrip_.getStartTime();
+                long ms = 0;
+                if(curtrip_ != null) {
+                    ms = System.currentTimeMillis() - curtrip_.getStartTime();
+                }
                 tvTime.setText(timeFormat(ms));
             }
         };
         handler.postDelayed(runnable, 0);
     }
-
+    */
 }
 
 
