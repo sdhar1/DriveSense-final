@@ -243,13 +243,12 @@ public class DatabaseHelper {
     public List<Trip> loadTrips() {
         User user = this.getCurrentUser();
         List<Trip> trips = new ArrayList<Trip>();
+        String selectQuery = "";
         if(user == null) {
-            Log.d(TAG, "display no trips");
-            return trips;
+            selectQuery = "SELECT  * FROM " + TABLE_META + " WHERE email = '"+"' order by starttime desc;";
         } else {
-            Log.d(TAG, user.toString());
+            selectQuery = "SELECT  * FROM " + TABLE_META + " WHERE email = '" + user.email_ + "' or email = '"+"' order by starttime desc;";
         }
-        String selectQuery = "SELECT  * FROM " + TABLE_META + " WHERE email = '" + user.email_ + "' or email = '" + "' order by starttime desc;";
         Cursor cursor = meta_.rawQuery(selectQuery, null);
         cursor.moveToFirst();
         do {
@@ -274,7 +273,7 @@ public class DatabaseHelper {
      * all about uploading
      */
     public long nextTripToUpload(String useremail) {
-        String selectQuery = "SELECT  * FROM " + TABLE_META + " WHERE uploaded = 0 and " + " email like '" + useremail + "';";
+        String selectQuery = "SELECT  * FROM " + TABLE_META + " WHERE uploaded = 0 and " + " email = '" + useremail + "';";
         Cursor cursor = meta_.rawQuery(selectQuery, null);
         cursor.moveToFirst();
         long stime = -1;
@@ -302,12 +301,13 @@ public class DatabaseHelper {
         meta_.update(TABLE_META, data, where, whereArgs);
 
         //drop the sensor tables to avoid space waste
-        String dropsql = "DROP TABLE IF EXISTS " + TABLE_ACCELEROMETER + ";" +
-                "DROP TABLE IF EXISTS " + TABLE_GYROSCOPE + ";" +
-                "DROP TABLE IF EXISTS " + TABLE_MAGNETOMETER + ";" +
-                "DROP TABLE IF EXISTS " + TABLE_ROTATION_MATRIX + ";";
+
+        String [] tables = {TABLE_ACCELEROMETER, TABLE_GYROSCOPE, TABLE_MAGNETOMETER, TABLE_ROTATION_MATRIX};
         db_ = SQLiteDatabase.openOrCreateDatabase(Constants.kDBFolder + String.valueOf(time).concat(".db"), null, null);
-        db_.execSQL(dropsql);
+        for(int i = 0; i < tables.length; ++i) {
+            String dropsql = "DROP TABLE IF EXISTS " + tables[i] + ";";
+            db_.execSQL(dropsql);
+        }
     }
 
 

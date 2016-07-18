@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import wisc.drivesense.database.DatabaseHelper;
 import wisc.drivesense.utility.Constants;
+import wisc.drivesense.utility.Rating;
 import wisc.drivesense.utility.Trace;
 import wisc.drivesense.utility.Trip;
 
@@ -23,6 +24,7 @@ public class TripService extends Service {
 
     private DatabaseHelper dbHelper_ = null;
     public Trip curtrip_ = null;
+    public Rating rating_ = null;
 
     public Binder _binder = new TripServiceBinder();
     private AtomicBoolean _isRunning = new AtomicBoolean(false);
@@ -95,6 +97,7 @@ public class TripService extends Service {
         long time = System.currentTimeMillis();
         dbHelper_.createDatabase(time);
         curtrip_ = new Trip(time);
+        rating_ = new Rating(curtrip_);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("sensor"));
     }
@@ -113,6 +116,7 @@ public class TripService extends Service {
             if(trace.type.compareTo(Trace.GPS) == 0) {
                 Log.d(TAG, "Got message: " + trace.toJson());
                 trace = calculateTraceByGPS(trace);
+                curtrip_.addGPS(trace);
                 sendTrip(trace);
             }
             if(dbHelper_.isOpen()) {
@@ -121,7 +125,7 @@ public class TripService extends Service {
         }
 
         private Trace calculateTraceByGPS(Trace trace) {
-            int brake = curtrip_.addGPS(trace);
+            int brake = rating_.readingData(trace);
             //create a new trace for GPS, since we use GPS to capture driving behaviors
             Trace ntrace = new Trace(5);
             ntrace.type = trace.type;

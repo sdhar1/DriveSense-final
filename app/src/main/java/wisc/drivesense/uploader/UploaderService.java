@@ -156,18 +156,20 @@ public class UploaderService extends Service {
                 client.connectForMultipart();
                 client.addFormPart("deviceid", devid);
                 client.addFormPart("email", email);
-                long time = Long.parseLong(dbname);
-                Trip trip = dbHelper_.getTrip(time);
-                if(trip != null) {
-                    client.addFormPart("starttime", String.valueOf(trip.getStartTime()));
-                    client.addFormPart("endtime", String.valueOf(trip.getEndTime()));
-                    client.addFormPart("score", String.valueOf(trip.getScore()));
-                    client.addFormPart("distance", String.valueOf(trip.getDistance()));
-                    client.addFormPart("tripstatus", String.valueOf(trip.getStatus()));
-                } else {
-                    Log.e(TAG, "database get trip is null");
-                }
 
+                if(!dbname.equals("summary")) {
+                    long time = Long.parseLong(dbname);
+                    Trip trip = dbHelper_.getTrip(time);
+                    if (trip != null) {
+                        client.addFormPart("starttime", String.valueOf(trip.getStartTime()));
+                        client.addFormPart("endtime", String.valueOf(trip.getEndTime()));
+                        client.addFormPart("score", String.valueOf(trip.getScore()));
+                        client.addFormPart("distance", String.valueOf(trip.getDistance()));
+                        client.addFormPart("tripstatus", String.valueOf(trip.getStatus()));
+                    } else {
+                        Log.e(TAG, "database get trip is null");
+                    }
+                }
                 client.addFilePart("uploads", dbname + ".db", byteArray);
                 client.finishMultipart();
                 res = client.getResponse();
