@@ -57,11 +57,12 @@ public class SensorService extends Service implements SensorEventListener, Locat
         Log.d(TAG, "location update speed:" + String.valueOf(location.getSpeed()));
         // TODO Auto-generated method stub
         if(location != null){
-            Trace trace = new Trace(3);
+            Trace trace = new Trace(4);
             trace.time = System.currentTimeMillis();
             trace.values[0] = (float) location.getLatitude();
             trace.values[1] = (float) location.getLongitude();
             trace.values[2] = location.getSpeed();
+            trace.values[3] = (float) location.getAltitude();
             trace.type = Trace.GPS;
 
             sendTrace(trace);

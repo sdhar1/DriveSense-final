@@ -127,10 +127,11 @@ public class TripService extends Service {
         private Trace calculateTraceByGPS(Trace trace) {
             int brake = rating_.readingData(trace);
             //create a new trace for GPS, since we use GPS to capture driving behaviors
-            Trace ntrace = new Trace(5);
+            Trace ntrace = new Trace(6);
             ntrace.type = trace.type;
             ntrace.time = trace.time;
             System.arraycopy(trace.values, 0, ntrace.values, 0, trace.values.length);
+            ntrace.values[5] = ntrace.values[3];
             ntrace.values[3] = (float)curtrip_.getScore();
             ntrace.values[4] = (float)brake;
             return ntrace;
