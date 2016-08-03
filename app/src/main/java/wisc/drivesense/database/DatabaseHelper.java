@@ -216,9 +216,6 @@ public class DatabaseHelper {
         return trip;
     }
 
-
-
-
     /**
      * @brief remove the record of the table, so that the user cannot see it
      * but the file is still in the database
@@ -241,6 +238,7 @@ public class DatabaseHelper {
         SQLiteDatabase.deleteDatabase(new File(Constants.kDBFolder + String.valueOf(time).concat(".db")));
     }
 
+
     public List<Trip> loadTrips() {
         User user = this.getCurrentUser();
         List<Trip> trips = new ArrayList<Trip>();
@@ -257,7 +255,7 @@ public class DatabaseHelper {
                 break;
             }
             int deleted = cursor.getInt(4);
-            if(deleted == 1) {
+            if(deleted >= 1) {
                 continue;
             }
             Trip trip = constructTripByCursor(cursor);
@@ -270,6 +268,27 @@ public class DatabaseHelper {
     }
 
 
+    public long[] tripsToSynchronize (String useremail) {
+        String selectQuery = "SELECT  * FROM " + TABLE_META + " WHERE uploaded = 1 and deleted = 1 and " + " email = '" + useremail + "';";
+        Cursor cursor = meta_.rawQuery(selectQuery, null);
+        cursor.moveToFirst();
+        if(cursor.getCount() == 0) {
+            return null;
+        }
+        long [] stime = new long[cursor.getCount()];
+        int i = 0;
+        do {
+            stime[i++] = cursor.getLong(0);
+        } while (cursor.moveToNext());
+        return stime;
+    }
+    public void tripSynchronizeDone(long time) {
+        ContentValues data = new ContentValues();
+        data.put("deleted", 2);
+        String where = "starttime = ? ";
+        String[] whereArgs = {String.valueOf(time)};
+        meta_.update(TABLE_META, data, where, whereArgs);
+    }
     /**
      * all about uploading
      */

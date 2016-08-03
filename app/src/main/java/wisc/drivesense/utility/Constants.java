@@ -23,13 +23,20 @@ public class Constants {
     public static final double kRecordingInterval = 100;
 
 
-    public static final String kUploadURL = "http://drivesense.wings.cs.wisc.edu:8000/upload";
-    public static final String kSignInURL = "http://drivesense.wings.cs.wisc.edu:8000/androidsignin";
-    public static final String kSignUpURL = "http://drivesense.wings.cs.wisc.edu:8000/androidsignup";
+    public static final String kUploadTripDBFile = "dbfile";
+    public static final String kSychronizeTripDeletion = "delete";
+
+
+    private static final String kDomain = "http://drivesense.wings.cs.wisc.edu:8000";
+    public static final String kUploadURL = kDomain + "/upload";
+    public static final String kSyncDeleteURL = kDomain + "/androidsync";
+
+
+    public static final String kSignInURL = kDomain + "/androidsignin";
+    public static final String kSignUpURL = kDomain + "/androidsignup";
 
     public static final String kDBFolder = "/data/data/wisc.drivesense/databases/";
 
     public static final int kNumberOfTripsDisplay = 100;
-    public static final String kDefaultEmail = "";
 
 }
