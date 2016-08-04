@@ -250,10 +250,10 @@ public class DatabaseHelper {
         }
         Cursor cursor = meta_.rawQuery(selectQuery, null);
         cursor.moveToFirst();
+        if(cursor.getCount() == 0) {
+            return trips;
+        }
         do {
-            if(cursor.getCount() == 0) {
-                break;
-            }
             int deleted = cursor.getInt(4);
             if(deleted >= 1) {
                 continue;
@@ -282,12 +282,12 @@ public class DatabaseHelper {
         } while (cursor.moveToNext());
         return stime;
     }
-    public void tripSynchronizeDone(long time) {
+    public int tripSynchronizeDone(long time) {
         ContentValues data = new ContentValues();
         data.put("deleted", 2);
         String where = "starttime = ? ";
         String[] whereArgs = {String.valueOf(time)};
-        meta_.update(TABLE_META, data, where, whereArgs);
+        return meta_.update(TABLE_META, data, where, whereArgs);
     }
     /**
      * all about uploading
@@ -312,22 +312,23 @@ public class DatabaseHelper {
      * label the meta table that the trip has been uploaded, and remove all the sensor tables, leave gps table
      * @param time
      */
-    public void tripUploadDone(long time) {
+    public int tripUploadDone(long time) {
         Log.d(TAG, "tripUploadDone");
-        ContentValues data = new ContentValues();
-        data.put("uploaded", 1);
-        String where = "starttime = ? ";
-        String[] whereArgs = {String.valueOf(time)};
-        meta_.update(TABLE_META, data, where, whereArgs);
 
         //drop the sensor tables to avoid space waste
-
         String [] tables = {TABLE_ACCELEROMETER, TABLE_GYROSCOPE, TABLE_MAGNETOMETER, TABLE_ROTATION_MATRIX};
         db_ = SQLiteDatabase.openOrCreateDatabase(Constants.kDBFolder + String.valueOf(time).concat(".db"), null, null);
         for(int i = 0; i < tables.length; ++i) {
             String dropsql = "DROP TABLE IF EXISTS " + tables[i] + ";";
             db_.execSQL(dropsql);
         }
+
+        //update information in meta table
+        ContentValues data = new ContentValues();
+        data.put("uploaded", 1);
+        String where = "starttime = ? ";
+        String[] whereArgs = {String.valueOf(time)};
+        return meta_.update(TABLE_META, data, where, whereArgs);
     }
 
 

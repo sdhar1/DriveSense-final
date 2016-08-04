@@ -43,8 +43,6 @@ public class SettingActivity extends AppCompatActivity {
 
             EditTextPreference idPref = (EditTextPreference)findPreference("pre_id");
             String androidid = Settings.Secure.getString(getActivity().getContentResolver(), Settings.Secure.ANDROID_ID);
-            int len = androidid.length();
-            androidid = androidid.substring(len - 6);
             idPref.setTitle("Device ID: " + androidid);
 
         }

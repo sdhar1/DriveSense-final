@@ -10,12 +10,16 @@ import android.provider.Settings;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import wisc.drivesense.database.DatabaseHelper;
@@ -96,8 +100,6 @@ public class UploaderService extends Service {
 
 
     private boolean synchronizeDeletion(String email) {
-
-        String dbname = null;
         long [] trips = dbHelper_.tripsToSynchronize(email);
         if(trips == null) {
             return false;
@@ -148,10 +150,20 @@ public class UploaderService extends Service {
             Message msg = gson.fromJson(result, Message.class);
             if(msg.type.equals(Constants.kUploadTripDBFile)) {
                 long time = Long.parseLong(msg.dbname);
-                dbHelper_.tripUploadDone(time);
+                int upload = dbHelper_.tripUploadDone(time);
+                Log.d(TAG, String.valueOf(upload));
             } else if (msg.type.equals(Constants.kSychronizeTripDeletion)) {
                 //
-                //gson.fromJson(msg.dbname, long []);
+                Type listType = new TypeToken<List<Long>>(){}.getType();
+                List<Long> local = gson.fromJson(msg.dbname, listType);
+                for(Long dbname: local) {
+                    int sync = dbHelper_.tripSynchronizeDone(dbname);
+                    Log.d(TAG, dbname + "," + String.valueOf(sync));
+                }
+                List<Long> server = gson.fromJson(msg.data, listType);
+                for(Long dbname: server) {
+                    dbHelper_.removeTrip(dbname);
+                }
             } else {
 
             }
@@ -215,8 +227,6 @@ public class UploaderService extends Service {
             }
             String useremail = user.email_;
             String androidid = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-            int len = androidid.length();
-            androidid = androidid.substring(len - 6);
 
             String res = null;
             try {
@@ -242,8 +252,7 @@ public class UploaderService extends Service {
             }
             String useremail = user.email_;
             String androidid = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-            int len = androidid.length();
-            androidid = androidid.substring(len - 6);
+
             byte[] byteArray = null;
             try {
                 File dbfile = new File(Constants.kDBFolder + dbname + ".db");
