@@ -39,4 +39,7 @@ public class Constants {
 
     public static final int kNumberOfTripsDisplay = 100;
 
+    public static final double kExponentialMovingAverageAlpha = 0.4;//0.3;
+
+
 }

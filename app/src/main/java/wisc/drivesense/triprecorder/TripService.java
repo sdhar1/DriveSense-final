@@ -25,6 +25,7 @@ public class TripService extends Service {
     private DatabaseHelper dbHelper_ = null;
     public Trip curtrip_ = null;
     public Rating rating_ = null;
+    public RealTimeTiltCalculation tiltCal_ = null;
 
     public Binder _binder = new TripServiceBinder();
     private AtomicBoolean _isRunning = new AtomicBoolean(false);
@@ -98,6 +99,7 @@ public class TripService extends Service {
         dbHelper_.createDatabase(time);
         curtrip_ = new Trip(time);
         rating_ = new Rating(curtrip_);
+        tiltCal_ = new RealTimeTiltCalculation();
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("sensor"));
     }
@@ -112,11 +114,15 @@ public class TripService extends Service {
             String message = intent.getStringExtra("trace");
             Trace trace = new Trace();
             trace.fromJson(message);
-
+            tiltCal_.processTrace(trace);
+            curtrip_.setTilt(tiltCal_.getTilt());
             if(trace.type.compareTo(Trace.GPS) == 0) {
                 Log.d(TAG, "Got message: " + trace.toJson());
                 trace = calculateTraceByGPS(trace);
                 curtrip_.addGPS(trace);
+                sendTrip(trace);
+            }
+            if(trace.type.compareTo(Trace.ACCELEROMETER) == 0) {
                 sendTrip(trace);
             }
             if(dbHelper_.isOpen()) {
@@ -127,13 +133,14 @@ public class TripService extends Service {
         private Trace calculateTraceByGPS(Trace trace) {
             int brake = rating_.readingData(trace);
             //create a new trace for GPS, since we use GPS to capture driving behaviors
-            Trace ntrace = new Trace(6);
+            Trace ntrace = new Trace(7);
             ntrace.type = trace.type;
             ntrace.time = trace.time;
             System.arraycopy(trace.values, 0, ntrace.values, 0, trace.values.length);
             ntrace.values[5] = ntrace.values[3];
             ntrace.values[3] = (float)curtrip_.getScore();
             ntrace.values[4] = (float)brake;
+            ntrace.values[6] = (float)tiltCal_.getTilt();
             return ntrace;
         }
     };

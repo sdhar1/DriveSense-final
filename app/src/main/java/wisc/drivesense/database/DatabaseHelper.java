@@ -54,7 +54,7 @@ public class DatabaseHelper {
     private static final String CREATE_TABLE_GPS = "CREATE TABLE IF NOT EXISTS "
             + TABLE_GPS + "(" + KEY_TIME + " INTEGER PRIMARY KEY," + KEY_VALUES[0] + " REAL,"
             + KEY_VALUES[1] + " REAL," +  KEY_VALUES[2] + " REAL," + KEY_VALUES[3] + " REAL,"
-            + KEY_VALUES[4] + " REAL," + KEY_VALUES[5] + " REAL"
+            + KEY_VALUES[4] + " REAL," + KEY_VALUES[5] + " REAL, " + KEY_VALUES[6] + " REAL"
             + ");";
     private static final String CREATE_TABLE_ACCELEROMETER = "CREATE TABLE IF NOT EXISTS "
             + TABLE_ACCELEROMETER + "(" + KEY_TIME + " INTEGER PRIMARY KEY," + KEY_VALUES[0]

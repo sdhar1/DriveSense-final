@@ -18,6 +18,7 @@ public class Trip implements Serializable {
     private List<Trace> gps_;
     private Trace start_ = null;
     private Trace dest_ = new Trace();
+    private double tilt_;
 
     //private Rating rating = null;
 
@@ -33,6 +34,9 @@ public class Trip implements Serializable {
 
     public void setScore(double score) {this.score_ = score;}
     public void setStatus(int status) {this.status_ = status;}
+
+    public void setTilt(double tilt) {this.tilt_ = tilt;}
+    public double getTilt() {return this.tilt_;}
 
 
     public long getStartTime() {

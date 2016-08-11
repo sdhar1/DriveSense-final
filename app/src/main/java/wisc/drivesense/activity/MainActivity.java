@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView tvSpeed = null;
     private TextView tvMile = null;
+    private TextView tvTilt = null;
     private Button btnStart = null;
 
     @Override
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
         tvSpeed = (TextView) findViewById(R.id.textspeed);
         tvMile = (TextView) findViewById(R.id.milesdriven);
+        tvTilt = (TextView) findViewById(R.id.texttilt);
         btnStart = (Button) findViewById(R.id.btnstart);
 
         android.support.v7.widget.Toolbar mToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.maintoolbar);
@@ -212,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
 
         tvSpeed.setText(String.format("%.1f", 0.0));
         tvMile.setText(String.format("%.2f", 0.00));
+        tvTilt.setText(String.format("%.1f", 0.0) + (char) 0x00B0);
 
         if(MainActivity.isServiceRunning(this, TripService.class) == true) {
             Log.d(TAG, "Stop driving detection service!!!");
@@ -242,13 +245,17 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra("trip");
-            Log.d(TAG, "Got message: " + message);
             Trace trace = new Trace();
             trace.fromJson(message);
             if(curtrip_ != null) {
-                curtrip_.addGPS(trace);
-                tvSpeed.setText(String.format("%.1f", curtrip_.getSpeed()));
-                tvMile.setText(String.format("%.1f", curtrip_.getDistance()));
+                if(trace.type.equals(Trace.GPS)) {
+                    Log.d(TAG, "Got message: " + message);
+                    curtrip_.addGPS(trace);
+                    tvSpeed.setText(String.format("%.1f", curtrip_.getSpeed()));
+                    tvMile.setText(String.format("%.1f", curtrip_.getDistance()));
+                } else if(trace.type.equals(Trace.ACCELEROMETER)) {
+                    tvTilt.setText(String.format("%.1f", curtrip_.getTilt()) + (char) 0x00B0);
+                }
             }
             if(trace.values[2] < 0) {
                 displayWarning();
@@ -290,31 +297,6 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    /*
-    private Handler handler = null;
-    private Runnable runnable;
-    private String timeFormat(long millis) {
-        String hms = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis),
-                TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
-                TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
-        return hms;
-    }
-    public void startTimer() {
-        handler = new Handler();
-        runnable = new Runnable() {
-            @Override
-            public void run() {
-                handler.postDelayed(this, 1000);
-                long ms = 0;
-                if(curtrip_ != null) {
-                    ms = System.currentTimeMillis() - curtrip_.getStartTime();
-                }
-                tvTime.setText(timeFormat(ms));
-            }
-        };
-        handler.postDelayed(runnable, 0);
-    }
-    */
 }
 
 
