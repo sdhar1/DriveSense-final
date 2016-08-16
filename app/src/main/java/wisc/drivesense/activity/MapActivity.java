@@ -29,22 +29,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 import wisc.drivesense.R;
+import wisc.drivesense.database.DatabaseHelper;
 import wisc.drivesense.utility.Trace;
 import wisc.drivesense.utility.Trip;
 
-public class MapActivity extends Activity implements OnMapReadyCallback {
+public class MapActivity extends Activity implements OnMapReadyCallback, GoogleMap.OnCameraChangeListener {
 
     static final LatLng madison_ = new LatLng(43.073052 , -89.401230);
     private GoogleMap map_ = null;
     private Trip trip_;
     private List<Trace> points_;
     private static String TAG = "MapActivity";
+    private DatabaseHelper dbHelper_ = null;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+
+        Log.d(TAG, "onCreate");
 
         Intent intent = getIntent();
         trip_ = (Trip) intent.getSerializableExtra("Current Trip");
@@ -59,10 +63,13 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
             }
         });
 
-        points_ = trip_.getGPSPoints();
+        dbHelper_ = new DatabaseHelper();
+        points_ = dbHelper_.getGPSPoints(trip_.getStartTime());
+        trip_.setGPSPoints(points_);
+
 
         //crash when there is no gps
-        // Log.d(TAG, points_.get(0).toJson());
+        Log.d(TAG, String.valueOf(points_.size()));
 
         //points_ = calculateRating(trip_);
         TextView ratingView = (TextView) findViewById(R.id.rating);
@@ -73,6 +80,19 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
         mapFragment.getMapAsync(this);
     }
 
+    public void onCameraChange(CameraPosition position) {
+        Log.d(TAG, String.valueOf(position.zoom));
+        Log.d(TAG, position.target.toString());
+
+        LatLngBounds bounds = map_.getProjection().getVisibleRegion().latLngBounds;
+        Log.d(TAG, bounds.toString());
+        //bounds.contains();
+
+
+
+
+
+    }
 
     @Override
     public void onMapReady(GoogleMap map) {
@@ -106,7 +126,10 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
             //deal with orientation change
             RadioButton rButton = (RadioButton) findViewById(R.id.radioButtonSpeed);
             rButton.setChecked(true);
-            plotRoute(2);
+            plotRoute();
+
+
+            map.setOnCameraChangeListener(this);
         }
     }
 
@@ -129,8 +152,27 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
         return res;
     }
 
+    private int getButtonIndex() {
+        int index = -1;
+        RadioButton speedButton = (RadioButton) findViewById(R.id.radioButtonSpeed);
+        RadioButton scoreButton = (RadioButton) findViewById(R.id.radioButtonScore);
+        RadioButton brakeButton = (RadioButton) findViewById(R.id.radioButtonBrake);
+        if(speedButton.isChecked()) {
+            index = 2;
+        } else if(scoreButton.isChecked()) {
+            index = 3;
+        } else if(brakeButton.isChecked()) {
+            index = 4;
+        } else {
+            index = -1;
+        }
+        return index;
+    }
 
-    private void plotRoute(int index) {
+
+    private void plotRoute() {
+        int index = getButtonIndex();
+        Log.d(TAG, "plot:" + String.valueOf(index));
         if(index < 2 || index > 4) {
             Log.e(TAG, "invalid input");
             return;
@@ -148,7 +190,8 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
         List<BitmapDescriptor> bitmapDescriptors = producePoints(colors);
 
         // plot the route on the google map
-        for (int i = 0; i < sz; i++) {
+        int rate = sz/1200 + 1;
+        for (int i = 0; i < sz; i+=rate) {
             Trace point = points_.get(i);
 
             BitmapDescriptor bitmapDescriptor = null;
@@ -205,19 +248,22 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
         }
         Log.d(TAG, view.getId() + " is checked: " + checked);
         // Check which radio button was clicked
+        plotRoute();
+        /*
         switch(view.getId()) {
             case R.id.radioButtonSpeed:
-                plotRoute(2);
+                plotRoute();
                 break;
             case R.id.radioButtonScore:
-                plotRoute(3);
+                plotRoute();
                 break;
             case R.id.radioButtonBrake:
-                plotRoute(4);
+                plotRoute();
                 break;
             default:
                 break;
         }
+        */
     }
 
 

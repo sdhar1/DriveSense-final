@@ -34,6 +34,8 @@ public class Trip implements Serializable {
 
     public void setScore(double score) {this.score_ = score;}
     public void setStatus(int status) {this.status_ = status;}
+    public void setEndTime(long time) {this.endTime_ = time;}
+    public void setDistance(double dist) {this.distance_ = dist;}
 
     public void setTilt(double tilt) {this.tilt_ = tilt;}
     public double getTilt() {return this.tilt_;}
@@ -46,7 +48,7 @@ public class Trip implements Serializable {
         return this.endTime_;
     }
     public double getDistance() {
-        return this.distance_ * Constants.kMeterToMile;
+        return this.distance_;
     }
     public double getScore() {return this.score_;}
     public long getDuration() {return this.endTime_ - this.startTime_;}

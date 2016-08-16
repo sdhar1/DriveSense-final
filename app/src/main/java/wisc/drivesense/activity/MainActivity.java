@@ -8,11 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -25,11 +22,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.concurrent.TimeUnit;
 
 import wisc.drivesense.R;
 import wisc.drivesense.triprecorder.TripService;
@@ -257,9 +250,11 @@ public class MainActivity extends AppCompatActivity {
                     tvTilt.setText(String.format("%.1f", curtrip_.getTilt()) + (char) 0x00B0);
                 }
             }
+            /*
             if(trace.values[2] < 0) {
                 displayWarning();
             }
+            */
         }
     };
 

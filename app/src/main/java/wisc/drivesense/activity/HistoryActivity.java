@@ -11,6 +11,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.google.gson.Gson;
+
 import java.util.List;
 
 import wisc.drivesense.R;
@@ -47,6 +49,7 @@ public class HistoryActivity extends Activity {
         dbHelper_ = new DatabaseHelper();
         trips_ = dbHelper_.loadTrips();
         adapter_ = new TripAdapter(this, trips_);
+
         listView.setAdapter(adapter_);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

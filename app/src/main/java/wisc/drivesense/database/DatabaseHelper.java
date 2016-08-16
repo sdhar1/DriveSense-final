@@ -189,16 +189,21 @@ public class DatabaseHelper {
         return res;
     }
 
-    private Trip constructTripByCursor(Cursor cursor) {
+    private Trip constructTripByCursor(Cursor cursor, boolean withgps) {
         long stime = cursor.getLong(0);
         long etime = cursor.getLong(1);
         double dist = cursor.getDouble(2);
         double score = cursor.getDouble(3);
         int deleted = cursor.getInt(4);
         Trip trip = new Trip(stime);
-        trip.setGPSPoints(this.getGPSPoints(stime));
         trip.setScore(score);
         trip.setStatus(deleted == 1? 0 : 1);
+        trip.setEndTime(etime);
+        trip.setDistance(dist * Constants.kMeterPSToMilePH);
+        if(withgps) {
+            trip.setGPSPoints(this.getGPSPoints(stime));
+        }
+
         return trip;
     }
 
@@ -211,7 +216,7 @@ public class DatabaseHelper {
             if(cursor.getCount() == 0) {
                 break;
             }
-            trip = constructTripByCursor(cursor);
+            trip = constructTripByCursor(cursor, true);
         } while (cursor.moveToNext());
         return trip;
     }
@@ -258,7 +263,7 @@ public class DatabaseHelper {
             if(deleted >= 1) {
                 continue;
             }
-            Trip trip = constructTripByCursor(cursor);
+            Trip trip = constructTripByCursor(cursor, false);
             trips.add(trip);
             if(trips.size() >= Constants.kNumberOfTripsDisplay) {
                 break;

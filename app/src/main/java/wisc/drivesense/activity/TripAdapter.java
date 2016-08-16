@@ -1,11 +1,14 @@
 package wisc.drivesense.activity;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -17,17 +20,19 @@ import wisc.drivesense.utility.Trip;
 public class TripAdapter extends ArrayAdapter<Trip> {
     List<Trip> trips_ = null;
 
-
-
+    private final String TAG = "TripAdapter";
     public TripAdapter(Context context, List<Trip> trips) {
         super(context, 0, trips);
         trips_ = trips;
+
+
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         // Get the data item for this position
         Trip trip = getItem(position);
+
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.trip_item, parent, false);
@@ -50,7 +55,6 @@ public class TripAdapter extends ArrayAdapter<Trip> {
         double duration = trip.getDuration();
         double miles = trip.getDistance();
         double score = trip.getScore();
-
 
         tvStart.setText(format.format(starting));
         tvEnd.setText(format.format(ending));

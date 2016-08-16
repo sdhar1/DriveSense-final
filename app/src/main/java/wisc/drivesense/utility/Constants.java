@@ -15,6 +15,8 @@ public class Constants {
     public static final double kKmPHToMPH = 0.621371;
     public static final double kKmPHToMeterPS = 0.277778;
 
+    public static final double kMileToMeters = 1609.34;
+
     public static final String kInputSeperator = "\t";
     public static final String kOutputSeperator = "\t";
     public static final String slash = "/";
@@ -37,7 +39,7 @@ public class Constants {
 
     public static final String kDBFolder = "/data/data/wisc.drivesense/databases/";
 
-    public static final int kNumberOfTripsDisplay = 100;
+    public static final int kNumberOfTripsDisplay = 20;
 
     public static final double kExponentialMovingAverageAlpha = 0.4;//0.3;
 
