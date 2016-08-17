@@ -30,6 +30,7 @@ import java.util.List;
 
 import wisc.drivesense.R;
 import wisc.drivesense.database.DatabaseHelper;
+import wisc.drivesense.utility.Constants;
 import wisc.drivesense.utility.Trace;
 import wisc.drivesense.utility.Trip;
 
@@ -63,14 +64,13 @@ public class MapActivity extends Activity implements OnMapReadyCallback, GoogleM
             }
         });
 
-        dbHelper_ = new DatabaseHelper();
-        points_ = dbHelper_.getGPSPoints(trip_.getStartTime());
-        trip_.setGPSPoints(points_);
-
-
-        //crash when there is no gps
-        Log.d(TAG, String.valueOf(points_.size()));
-
+        if(trip_.getDuration() >= Constants.kTripMinimumDuration) {
+            dbHelper_ = new DatabaseHelper();
+            points_ = dbHelper_.getGPSPoints(trip_.getStartTime());
+            trip_.setGPSPoints(points_);
+            //crash when there is no gps
+            Log.d(TAG, String.valueOf(points_.size()));
+        }
         //points_ = calculateRating(trip_);
         TextView ratingView = (TextView) findViewById(R.id.rating);
         ratingView.setText(String.format("%.1f", trip_.getScore()));

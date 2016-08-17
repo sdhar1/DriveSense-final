@@ -65,7 +65,7 @@ public class TripService extends Service {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
 
         //validate the trip based on distance and travel time
-        if(curtrip_.getDistance() >= 0.3 && curtrip_.getDuration() >= 1.0) {
+        if(curtrip_.getDistance() >= Constants.kTripMinimumDistance && curtrip_.getDuration() >= Constants.kTripMinimumDuration) {
             Toast.makeText(this, "Saving trip in background!", Toast.LENGTH_SHORT).show();
             dbHelper_.insertTrip(curtrip_);
         } else {

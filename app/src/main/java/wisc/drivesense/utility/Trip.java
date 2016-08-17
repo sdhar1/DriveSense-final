@@ -85,6 +85,7 @@ public class Trip implements Serializable {
 
 
     public void setGPSPoints(List<Trace> gps) {
+        this.gps_ = new ArrayList<Trace>();
         for(int i = 0; i < gps.size(); ++i) {
             this.addGPS(gps.get(i));
         }

@@ -103,6 +103,8 @@
         android:id="@+id/texttilt"
         android:layout_above="@+id/textspeed"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="30dp" />
+        android:layout_marginBottom="30dp"
+        android:visibility="gone"
+        />
 
 </RelativeLayout>
