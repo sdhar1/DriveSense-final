@@ -199,7 +199,7 @@ public class DatabaseHelper {
         trip.setScore(score);
         trip.setStatus(deleted == 1? 0 : 1);
         trip.setEndTime(etime);
-        trip.setDistance(dist * Constants.kMeterPSToMilePH);
+        trip.setDistance(dist);
         if(withgps) {
             trip.setGPSPoints(this.getGPSPoints(stime));
         }

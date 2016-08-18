@@ -44,7 +44,7 @@ public class RealTimeTiltCalculation {
 				window_rotation_matrix.remove(0);
 			}
 		} else {
-			Log.e(TAG, trace.toString());
+			//Log.e(TAG, trace.toString());
 		}
 	}
 	

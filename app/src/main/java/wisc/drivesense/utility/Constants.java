@@ -41,7 +41,7 @@ public class Constants {
 
     public static final int kNumberOfTripsDisplay = 20;
     public static final double kTripMinimumDuration = 1.0; //mins
-    public static final double kTripMinimumDistance = 0.3; //mile
+    public static final double kTripMinimumDistance = 1000; //meter
 
 
     public static final double kExponentialMovingAverageAlpha = 0.4;//0.3;

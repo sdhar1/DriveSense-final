@@ -245,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "Got message: " + message);
                     curtrip_.addGPS(trace);
                     tvSpeed.setText(String.format("%.1f", curtrip_.getSpeed()));
-                    tvMile.setText(String.format("%.1f", curtrip_.getDistance()));
+                    tvMile.setText(String.format("%.2f", curtrip_.getDistance() * Constants.kMeterToMile));
                 } else if(trace.type.equals(Trace.ACCELEROMETER)) {
                     tvTilt.setText(String.format("%.1f", curtrip_.getTilt()) + (char) 0x00B0);
                 }

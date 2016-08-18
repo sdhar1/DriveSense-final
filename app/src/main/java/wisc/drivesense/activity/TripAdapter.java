@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 import wisc.drivesense.R;
+import wisc.drivesense.utility.Constants;
 import wisc.drivesense.utility.Trip;
 
 public class TripAdapter extends ArrayAdapter<Trip> {
@@ -53,7 +54,7 @@ public class TripAdapter extends ArrayAdapter<Trip> {
         SimpleDateFormat format = new SimpleDateFormat();
 
         double duration = trip.getDuration();
-        double miles = trip.getDistance();
+        double miles = trip.getDistance() * Constants.kMeterToMile;
         double score = trip.getScore();
 
         tvStart.setText(format.format(starting));

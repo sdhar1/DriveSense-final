@@ -11,7 +11,7 @@ public class Trip implements Serializable {
 
     private long startTime_ = 0;
     private long endTime_ = 0;
-    private double distance_ = 0; // in miles
+    private double distance_ = 0; // in meter
     private double speed_ = 0.0;
     private double score_ = 10.0;
     private int status_ = 1;
@@ -85,11 +85,15 @@ public class Trip implements Serializable {
 
 
     public void setGPSPoints(List<Trace> gps) {
-        this.gps_ = new ArrayList<Trace>();
-        for(int i = 0; i < gps.size(); ++i) {
-            this.addGPS(gps.get(i));
+        int sz = gps.size();
+        if(sz == 0) {
+            return;
         }
+        this.gps_ = gps;
+        this.start_ = gps.get(0);
+        this.dest_ = gps.get(sz - 1);
     }
+
     public List<Trace> getGPSPoints() {
         return gps_;
     }

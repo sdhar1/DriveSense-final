@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +65,9 @@ public class MapActivity extends Activity implements OnMapReadyCallback, GoogleM
             }
         });
 
-        if(trip_.getDuration() >= Constants.kTripMinimumDuration) {
+        Gson gson = new Gson();
+        Log.d(TAG, gson.toJson(trip_));
+        if(trip_.getDistance() >= Constants.kTripMinimumDistance && trip_.getDuration() >= Constants.kTripMinimumDuration) {
             dbHelper_ = new DatabaseHelper();
             points_ = dbHelper_.getGPSPoints(trip_.getStartTime());
             trip_.setGPSPoints(points_);
