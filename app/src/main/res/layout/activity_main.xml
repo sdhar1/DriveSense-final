@@ -96,7 +96,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="0.0&#xb0;"
+        android:text="0&#xb0;"
         style="@style/textStyle"
         android:textSize="50sp"
         android:textAlignment="center"

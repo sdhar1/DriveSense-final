@@ -55,6 +55,10 @@ public class MainActivity extends AppCompatActivity {
         tvTilt = (TextView) findViewById(R.id.texttilt);
         btnStart = (Button) findViewById(R.id.btnstart);
 
+        tvTilt.setVisibility(View.VISIBLE);
+        tvTilt.setText(String.format("%.0f", 0.0) + (char) 0x00B0);
+
+
         android.support.v7.widget.Toolbar mToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.maintoolbar);
         setSupportActionBar(mToolbar);
 
@@ -207,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
 
         tvSpeed.setText(String.format("%.1f", 0.0));
         tvMile.setText(String.format("%.2f", 0.00));
-        tvTilt.setText(String.format("%.1f", 0.0) + (char) 0x00B0);
+        tvTilt.setText(String.format("%.0f", 0.0) + (char) 0x00B0);
 
         if(MainActivity.isServiceRunning(this, TripService.class) == true) {
             Log.d(TAG, "Stop driving detection service!!!");
@@ -247,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
                     tvSpeed.setText(String.format("%.1f", curtrip_.getSpeed()));
                     tvMile.setText(String.format("%.2f", curtrip_.getDistance() * Constants.kMeterToMile));
                 } else if(trace.type.equals(Trace.ACCELEROMETER)) {
-                    tvTilt.setText(String.format("%.1f", curtrip_.getTilt()) + (char) 0x00B0);
+                    tvTilt.setText(String.format("%.0f", curtrip_.getTilt()) + (char) 0x00B0);
                 }
             }
             /*
