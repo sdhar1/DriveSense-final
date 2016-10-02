@@ -16,6 +16,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
+
 import wisc.drivesense.R;
 import wisc.drivesense.database.DatabaseHelper;
 import wisc.drivesense.uploader.HttpClient;
@@ -51,6 +57,8 @@ public class UserActivity extends Activity {
     private Button mEmailSignInButton;
     private Button mEmailSignUpButton;
     private Button mEmailSignOutButton;
+    private LoginButton mFacebookLoginButton;
+    private CallbackManager callbackManager;
 
 
     private String TAG = "UserActivity";
@@ -99,7 +107,27 @@ public class UserActivity extends Activity {
                 displaySignIn();
             }
         });
+        mFacebookLoginButton = (LoginButton) findViewById((R.id.login_button));
+        mFacebookLoginButton.setReadPermissions("public_profile","email");
 
+        callbackManager = CallbackManager.Factory.create();
+
+        mFacebookLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                // App code
+            }
+
+            @Override
+            public void onCancel() {
+                // App code
+            }
+
+            @Override
+            public void onError(FacebookException exception) {
+                // App code
+            }
+        });
 
         dbHelper_ = new DatabaseHelper();
         curUser_ = dbHelper_.getCurrentUser();
