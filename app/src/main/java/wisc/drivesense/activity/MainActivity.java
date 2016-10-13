@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         tvTilt = (TextView) findViewById(R.id.texttilt);
         btnStart = (Button) findViewById(R.id.btnstart);
 
-        tvTilt.setVisibility(View.VISIBLE);
+        //tvTilt.setVisibility(View.VISIBLE);
         tvTilt.setText(String.format("%.0f", 0.0) + (char) 0x00B0);
 
 
@@ -157,10 +157,11 @@ public class MainActivity extends AppCompatActivity {
                     btnStart.setText(R.string.stop_button);
                 } else {
                     //Toast.makeText(MainActivity.this, "Service Stopped!", Toast.LENGTH_SHORT).show();
-                    showDriveRating();
                     stopRunning();
                     btnStart.setBackgroundResource(R.drawable.start_button);
                     btnStart.setText(R.string.start_button);
+
+                    showDriveRating();
                 }
             }
         });
@@ -250,15 +251,15 @@ public class MainActivity extends AppCompatActivity {
                     curtrip_.addGPS(trace);
                     tvSpeed.setText(String.format("%.1f", curtrip_.getSpeed()));
                     tvMile.setText(String.format("%.2f", curtrip_.getDistance() * Constants.kMeterToMile));
+                    /*
+                    if(curtrip_.getSpeed() >= 5.0 && trace.values[2] < 0) {
+                        displayWarning();
+                    }
+                    */
                 } else if(trace.type.equals(Trace.ACCELEROMETER)) {
                     tvTilt.setText(String.format("%.0f", curtrip_.getTilt()) + (char) 0x00B0);
                 }
             }
-            /*
-            if(trace.values[2] < 0) {
-                displayWarning();
-            }
-            */
         }
     };
 
