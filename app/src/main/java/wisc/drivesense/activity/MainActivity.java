@@ -21,8 +21,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
+//import com.facebook.FacebookSdk;
+//import com.facebook.appevents.AppEventsLogger;
 
 import java.io.File;
 
@@ -72,8 +72,8 @@ public class MainActivity extends AppCompatActivity {
             dbDir.mkdirs();
         }
         addListenerOnButton();
-        FacebookSdk.sdkInitialize(getApplicationContext());
-        AppEventsLogger.activateApp(this);
+        //FacebookSdk.sdkInitialize(getApplicationContext());
+        //AppEventsLogger.activateApp(this);
     }
 
 
