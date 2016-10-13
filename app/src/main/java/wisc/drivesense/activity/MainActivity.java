@@ -21,6 +21,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 
 import java.io.File;
 
@@ -50,6 +52,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        // Initializing Facebook Integration
+
         tvSpeed = (TextView) findViewById(R.id.textspeed);
         tvMile = (TextView) findViewById(R.id.milesdriven);
         tvTilt = (TextView) findViewById(R.id.texttilt);
@@ -67,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
             dbDir.mkdirs();
         }
         addListenerOnButton();
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        AppEventsLogger.activateApp(this);
     }
 
 
