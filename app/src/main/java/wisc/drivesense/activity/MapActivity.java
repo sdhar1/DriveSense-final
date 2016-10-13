@@ -54,6 +54,7 @@ public class MapActivity extends Activity implements OnMapReadyCallback, GoogleM
 
         Intent intent = getIntent();
         trip_ = (Trip) intent.getSerializableExtra("Current Trip");
+
         Toolbar ratingToolbar = (Toolbar) findViewById(R.id.tool_bar_rating);
 
         ratingToolbar.setTitle("Your Trip");
@@ -73,6 +74,7 @@ public class MapActivity extends Activity implements OnMapReadyCallback, GoogleM
             trip_.setGPSPoints(points_);
             //crash when there is no gps
             Log.d(TAG, String.valueOf(points_.size()));
+
         }
         //points_ = calculateRating(trip_);
         TextView ratingView = (TextView) findViewById(R.id.rating);

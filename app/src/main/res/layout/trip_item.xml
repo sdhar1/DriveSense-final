@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:textSize="20sp"
         android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
+        android:layout_marginRight="2dp"
         android:layout_centerVertical="true"
         />
 
@@ -24,7 +24,7 @@
         android:textSize="20sp"
         android:paddingTop="10dp"
         android:paddingBottom="5dp"
-        android:layout_marginLeft="20dp"
+        android:layout_marginLeft="5dp"
         android:layout_toRightOf="@id/score"
         />
 
