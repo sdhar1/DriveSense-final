@@ -24,6 +24,8 @@ import android.widget.Toast;
 //import com.facebook.FacebookSdk;
 //import com.facebook.appevents.AppEventsLogger;
 
+import com.google.gson.Gson;
+
 import java.io.File;
 
 import wisc.drivesense.R;
@@ -168,6 +170,7 @@ public class MainActivity extends AppCompatActivity {
                     btnStart.setBackgroundResource(R.drawable.start_button);
                     btnStart.setText(R.string.start_button);
 
+
                     showDriveRating();
                 }
             }
@@ -272,6 +275,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void showDriveRating() {
+        Log.d(TAG, "in showDriveRating");
+        Gson gson = new Gson();
+        Log.d(TAG, gson.toJson(curtrip_));
         Intent intent = new Intent(this, MapActivity.class);
         intent.putExtra("Current Trip", curtrip_);
         startActivity(intent);
