@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -119,6 +121,8 @@ public class DatabaseHelper {
     }
 
     public void insertTrip(Trip trip) {
+        Gson gson = new Gson();
+        Log.d(TAG, "insertTrip" + gson.toJson(trip));
         ContentValues values = new ContentValues();
         values.put("starttime", trip.getStartTime());
         values.put("endtime", trip.getEndTime());
@@ -240,6 +244,7 @@ public class DatabaseHelper {
      */
 
     public void deleteTrip(long time) {
+        Log.d(TAG, "deleteTrip:" + time);
         SQLiteDatabase.deleteDatabase(new File(Constants.kDBFolder + String.valueOf(time).concat(".db")));
     }
 
