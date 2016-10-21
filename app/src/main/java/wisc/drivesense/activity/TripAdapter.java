@@ -51,7 +51,7 @@ public class TripAdapter extends ArrayAdapter<Trip> {
         long end = trip.getEndTime();
         Date ending = new Date(end);
 
-        SimpleDateFormat format = new SimpleDateFormat();
+        SimpleDateFormat format = new SimpleDateFormat("MM/dd/yy HH:mm");
 
         double duration = trip.getDuration();
         double miles = trip.getDistance() * Constants.kMeterToMile;
