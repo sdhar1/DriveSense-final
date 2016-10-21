@@ -185,11 +185,15 @@ public class MapActivity extends Activity implements OnMapReadyCallback, GoogleM
         //TODO: change it to display according to speed
         // remove zero points
         ListIterator<Trace> it = points_.listIterator();
-        while (it.hasNext() && it.next().values[2] == 0) {
-            it.remove();
+        while (it.hasNext()) {
+            Trace cur = it.next();
+            if(cur.values[2] == 0.0) {
+                it.remove();
+            }
         }
         //
         int sz = points_.size();
+        Log.d(TAG, "gps size after remove zeros" + sz);
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 

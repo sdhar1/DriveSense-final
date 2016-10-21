@@ -176,11 +176,14 @@ public class UploaderService extends Service {
             String res = null;
             String type = params[0];
             if(type.equals(Constants.kUploadTripDBFile)) {
-                Log.d(TAG, "uploading DB file");
                 String dbname = params[1];
+                Log.d(TAG, "uploading DB file:" + dbname);
                 res = uploadTrip(dbname);
                 if(res == null) {
                     Log.d(TAG, "upload error, res is null");
+                    //remove sensor data if upload error, assume it is too big
+                    //in case of server error, it is okay to delete current sensor data
+                    dbHelper_.tripRemoveSensorData(Long.valueOf(dbname));
                     return null;
                 }
                 Log.d(TAG, res);
@@ -255,6 +258,7 @@ public class UploaderService extends Service {
             try {
                 File dbfile = new File(Constants.kDBFolder + dbname + ".db");
                 long fsz = dbfile.length();
+                Log.d(TAG, "cur file size:" + fsz);
                 InputStream inputStream = new FileInputStream(dbfile);
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 byte[] b = new byte[(int)fsz];
@@ -284,6 +288,7 @@ public class UploaderService extends Service {
                     client.addFormPart("distance", String.valueOf(trip.getDistance()));
                     client.addFormPart("tripstatus", String.valueOf(trip.getStatus()));
 
+                    //TODO: failed if too big
                     client.addFilePart("uploads", dbname + ".db", byteArray);
                     client.finishMultipart();
 

@@ -318,6 +318,15 @@ public class DatabaseHelper {
     }
 
 
+    public void tripRemoveSensorData(long time) {
+        String [] tables = {TABLE_ACCELEROMETER, TABLE_GYROSCOPE, TABLE_MAGNETOMETER, TABLE_ROTATION_MATRIX};
+        SQLiteDatabase tmpdb = SQLiteDatabase.openOrCreateDatabase(Constants.kDBFolder + String.valueOf(time).concat(".db"), null, null);
+        for(int i = 0; i < tables.length; ++i) {
+            String dropsql = "DROP TABLE IF EXISTS " + tables[i] + ";";
+            tmpdb.execSQL(dropsql);
+        }
+        tmpdb.close();
+    }
     /**
      * label the meta table that the trip has been uploaded, and remove all the sensor tables, leave gps table
      * @param time
@@ -326,12 +335,7 @@ public class DatabaseHelper {
         Log.d(TAG, "tripUploadDone");
 
         //drop the sensor tables to avoid space waste
-        String [] tables = {TABLE_ACCELEROMETER, TABLE_GYROSCOPE, TABLE_MAGNETOMETER, TABLE_ROTATION_MATRIX};
-        db_ = SQLiteDatabase.openOrCreateDatabase(Constants.kDBFolder + String.valueOf(time).concat(".db"), null, null);
-        for(int i = 0; i < tables.length; ++i) {
-            String dropsql = "DROP TABLE IF EXISTS " + tables[i] + ";";
-            db_.execSQL(dropsql);
-        }
+        tripRemoveSensorData(time);
 
         //update information in meta table
         ContentValues data = new ContentValues();

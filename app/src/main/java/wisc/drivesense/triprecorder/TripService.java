@@ -108,6 +108,9 @@ public class TripService extends Service {
     /**
      * where we get the sensor data
      */
+    private long lastGPS = 0;
+    private long lastSpeedNonzero = 0;
+    private boolean stoprecording = false;
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -116,16 +119,36 @@ public class TripService extends Service {
             trace.fromJson(message);
             tiltCal_.processTrace(trace);
             curtrip_.setTilt(tiltCal_.getTilt());
+
+            if(lastSpeedNonzero == 0 && lastGPS == 0) {
+                lastSpeedNonzero = trace.time;
+                lastGPS = trace.time;
+            }
+
             if(trace.type.compareTo(Trace.GPS) == 0) {
                 Log.d(TAG, "Got message: " + trace.toJson());
+
+                if(trace.values[2] != 0.0) {
+                    lastSpeedNonzero = trace.time;
+                }
+                lastGPS = trace.time;
+
                 trace = calculateTraceByGPS(trace);
                 curtrip_.addGPS(trace);
                 sendTrip(trace);
-            }
-            if(trace.type.compareTo(Trace.ACCELEROMETER) == 0) {
+            } else if(trace.type.compareTo(Trace.ACCELEROMETER) == 0) {
                 sendTrip(trace);
+            } else {
+
             }
-            if(dbHelper_.isOpen()) {
+
+            long curtime = trace.time;
+            if(curtime - lastSpeedNonzero > Constants.kInactiveDuration || curtime - lastGPS > Constants.kInactiveDuration) {
+                stoprecording = true;
+            } else {
+                stoprecording = false;
+            }
+            if(dbHelper_.isOpen() && stoprecording == false) {
                 dbHelper_.insertSensorData(trace);
             }
         }
