@@ -181,9 +181,6 @@ public class UploaderService extends Service {
                 res = uploadTrip(dbname);
                 if(res == null) {
                     Log.d(TAG, "upload error, res is null");
-                    //remove sensor data if upload error, assume it is too big
-                    //in case of server error, it is okay to delete current sensor data
-                    dbHelper_.tripRemoveSensorData(Long.valueOf(dbname));
                     return null;
                 }
                 Log.d(TAG, res);
@@ -248,7 +245,7 @@ public class UploaderService extends Service {
 
         private String uploadTrip(String dbname) {
             User user = dbHelper_.getCurrentUser();
-            if(user == null) {
+            if (user == null) {
                 return null;
             }
             String useremail = user.email_;
@@ -261,8 +258,8 @@ public class UploaderService extends Service {
                 Log.d(TAG, "cur file size:" + fsz);
                 InputStream inputStream = new FileInputStream(dbfile);
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                byte[] b = new byte[(int)fsz];
-                int bytesRead =0;
+                byte[] b = new byte[(int) fsz];
+                int bytesRead = 0;
                 while ((bytesRead = inputStream.read(b)) != -1) {
                     bos.write(b, 0, bytesRead);
                 }
@@ -297,6 +294,10 @@ public class UploaderService extends Service {
                     return null;
                 }
                 res = client.getResponse();
+            } catch (OutOfMemoryError e) {
+                Log.e(TAG, "out of memeory");
+                e.printStackTrace();
+                dbHelper_.tripRemoveSensorData(Long.valueOf(dbname));
             } catch(Throwable t) {
                 t.printStackTrace();
                 return null;
