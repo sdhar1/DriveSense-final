@@ -67,6 +67,13 @@ public class UserActivity extends Activity {
     private DatabaseHelper dbHelper_;
     private User curUser_;
 
+    protected void onDestroy() {
+        if(dbHelper_ != null && dbHelper_.isOpen()) {
+            dbHelper_.closeDatabase();
+        }
+        super.onDestroy();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

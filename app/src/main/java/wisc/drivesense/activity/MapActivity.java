@@ -28,6 +28,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 import wisc.drivesense.R;
 import wisc.drivesense.database.DatabaseHelper;
@@ -76,7 +77,6 @@ public class MapActivity extends Activity implements OnMapReadyCallback, GoogleM
             Log.d(TAG, String.valueOf(points_.size()));
 
         }
-        //points_ = calculateRating(trip_);
         TextView ratingView = (TextView) findViewById(R.id.rating);
         ratingView.setText(String.format("%.1f", trip_.getScore()));
 
@@ -92,11 +92,6 @@ public class MapActivity extends Activity implements OnMapReadyCallback, GoogleM
         LatLngBounds bounds = map_.getProjection().getVisibleRegion().latLngBounds;
         Log.d(TAG, bounds.toString());
         //bounds.contains();
-
-
-
-
-
     }
 
     @Override
@@ -182,11 +177,18 @@ public class MapActivity extends Activity implements OnMapReadyCallback, GoogleM
             Log.e(TAG, "invalid input");
             return;
         }
+
         if(points_ == null || points_.size() <=2) {
             Log.e(TAG, "invalid GPS points");
             return;
         }
-
+        //TODO: change it to display according to speed
+        // remove zero points
+        ListIterator<Trace> it = points_.listIterator();
+        while (it.hasNext() && it.next().values[2] == 0) {
+            it.remove();
+        }
+        //
         int sz = points_.size();
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -273,6 +275,9 @@ public class MapActivity extends Activity implements OnMapReadyCallback, GoogleM
 
 
     protected void onDestroy() {
+        if(dbHelper_ != null && dbHelper_.isOpen()) {
+            dbHelper_.closeDatabase();
+        }
         super.onDestroy();
     }
 }

@@ -63,6 +63,12 @@ public class Trip implements Serializable {
     public double getSpeed() {return speed_ * Constants.kMeterPSToMilePH;}
 
 
+    /**
+     * Add one GPS point in real time, do not keep the GPS array in memory
+     * always read/write gps points from database
+     *
+     * @param trace
+     */
     public void addGPS(Trace trace) {
 
         gps_.add(trace);
@@ -77,10 +83,9 @@ public class Trip implements Serializable {
         int sz = gps_.size();
         if(sz >= 2) {
             distance_ += distance(gps_.get(sz - 2), gps_.get(sz - 1));
+            //keep it to be just last two locations
+            gps_.remove(0);
         }
-
-        //rate the trip
-        //return rating.readingData(trace);
     }
 
 
