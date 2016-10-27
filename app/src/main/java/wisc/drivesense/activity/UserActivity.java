@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 /*
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -22,9 +24,15 @@ import com.facebook.FacebookException;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 */
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+
 import wisc.drivesense.R;
 import wisc.drivesense.database.DatabaseHelper;
 import wisc.drivesense.uploader.HttpClient;
+import wisc.drivesense.uploader.RequestQueueSingleton;
 import wisc.drivesense.utility.Constants;
 import wisc.drivesense.utility.User;
 
@@ -91,12 +99,7 @@ public class UserActivity extends Activity {
 
 
         mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptSignIn();
-            }
-        });
+
         mEmailSignUpButton = (Button) findViewById(R.id.email_sign_up_button);
         mEmailSignUpButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -208,16 +211,39 @@ public class UserActivity extends Activity {
 
 
     /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
-     */
-    private void attemptSignIn() {
+    * Attempts to sign in or register the account specified by the login form.
 
-        Log.d(TAG, "attempt to sign in");
-        if (mAuthTask != null) {
-            return;
-        }
+    * @param email
+    * @param password
+    */
+    private void attemptSignIn(String email, String password) {
+        // Request a string response from the provided URL.
+        final Context ctx = this;
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, Constants.kSignInURL,
+            new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    // Display the first 500 characters of the response string.
+                    Log.d(TAG,response);
+                }
+            }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(ctx, "Login failed", Toast.LENGTH_SHORT);
+            }
+        });
+        // Add the request to the RequestQueue.
+        RequestQueueSingleton.getInstance(this).getRequestQueue().add(stringRequest);
+    }
+
+    /**
+    * If there are form errors (invalid email, missing fields, etc.), the
+    * errors are presented and no actual login attempt is made.
+    *
+    *
+    * */
+    public void signInClicked(View v) {
+        Log.d(TAG, "Sign in clicked");
 
         // Reset errors.
         mEmailView.setError(null);
@@ -255,10 +281,7 @@ public class UserActivity extends Activity {
             curUser_.email_ = email;
             curUser_.password_ = password;
 
-            mAuthTask = new RegisterTask(curUser_, true);
-            mAuthTask.execute((Void) null);
-
-
+            attemptSignIn(email, password);
         }
     }
 

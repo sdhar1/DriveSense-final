@@ -159,7 +159,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/sign_in"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:onClick="signInClicked" />
 
             <!-- sign up -->
             <Button

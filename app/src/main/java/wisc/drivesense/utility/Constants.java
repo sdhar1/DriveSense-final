@@ -29,12 +29,12 @@ public class Constants {
     public static final String kSychronizeTripDeletion = "delete";
 
 
-    private static final String kDomain = "http://drivesense.wings.cs.wisc.edu:8000";
+    private static final String kDomain = "http://drivesensetest.wirover.com:8000";
     public static final String kUploadURL = kDomain + "/upload";
     public static final String kSyncDeleteURL = kDomain + "/androidsync";
 
 
-    public static final String kSignInURL = kDomain + "/androidsignin";
+    public static final String kSignInURL = kDomain + "/auth/signin";
     public static final String kSignUpURL = kDomain + "/androidsignup";
 
     public static final String kDBFolder = "/data/data/wisc.drivesense/databases/";
