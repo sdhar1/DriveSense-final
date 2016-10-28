@@ -34,5 +34,6 @@
     <string name="view">View</string>
     <string name="delete">Delete</string>
     <string name="more">More...</string>
+    <string name="login_failed">Login failed: Make sure your email and password are correct.</string>
 
 </resources>

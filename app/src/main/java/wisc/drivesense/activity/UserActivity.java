@@ -31,9 +31,11 @@ import com.android.volley.toolbox.StringRequest;
 
 import wisc.drivesense.R;
 import wisc.drivesense.database.DatabaseHelper;
+import wisc.drivesense.uploader.GsonRequest;
 import wisc.drivesense.uploader.HttpClient;
 import wisc.drivesense.uploader.RequestQueueSingleton;
 import wisc.drivesense.utility.Constants;
+import wisc.drivesense.utility.LoginRequest;
 import wisc.drivesense.utility.User;
 
 
@@ -219,21 +221,28 @@ public class UserActivity extends Activity {
     private void attemptSignIn(String email, String password) {
         // Request a string response from the provided URL.
         final Context ctx = this;
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, Constants.kSignInURL,
-            new Response.Listener<String>() {
+
+        LoginRequest login = new LoginRequest();
+        login.email = email;
+        login.password = password;
+
+
+        GsonRequest<LoginRequest> loginReq = new GsonRequest<LoginRequest>(Request.Method.POST, Constants.kSignInURL,
+                login, LoginRequest.class,
+            new Response.Listener<LoginRequest>() {
                 @Override
-                public void onResponse(String response) {
+                public void onResponse(LoginRequest response) {
                     // Display the first 500 characters of the response string.
-                    Log.d(TAG,response);
+                    Log.d(TAG,response.token);
                 }
             }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(ctx, "Login failed", Toast.LENGTH_SHORT);
+                Toast.makeText(ctx, R.string.login_failed, Toast.LENGTH_SHORT).show();
             }
         });
         // Add the request to the RequestQueue.
-        RequestQueueSingleton.getInstance(this).getRequestQueue().add(stringRequest);
+        RequestQueueSingleton.getInstance(this).getRequestQueue().add(loginReq);
     }
 
     /**
