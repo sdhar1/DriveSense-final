@@ -27,7 +27,6 @@ import com.facebook.login.widget.LoginButton;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 
 import wisc.drivesense.R;
 import wisc.drivesense.database.DatabaseHelper;
@@ -35,7 +34,7 @@ import wisc.drivesense.uploader.GsonRequest;
 import wisc.drivesense.uploader.HttpClient;
 import wisc.drivesense.uploader.RequestQueueSingleton;
 import wisc.drivesense.utility.Constants;
-import wisc.drivesense.utility.LoginRequest;
+import wisc.drivesense.httpPayloads.LoginPayload;
 import wisc.drivesense.utility.User;
 
 
@@ -222,16 +221,16 @@ public class UserActivity extends Activity {
         // Request a string response from the provided URL.
         final Context ctx = this;
 
-        LoginRequest login = new LoginRequest();
+        LoginPayload login = new LoginPayload();
         login.email = email;
         login.password = password;
 
 
-        GsonRequest<LoginRequest> loginReq = new GsonRequest<LoginRequest>(Request.Method.POST, Constants.kSignInURL,
-                login, LoginRequest.class,
-            new Response.Listener<LoginRequest>() {
+        GsonRequest<LoginPayload> loginReq = new GsonRequest<LoginPayload>(Request.Method.POST, Constants.kSignInURL,
+                login, LoginPayload.class,
+            new Response.Listener<LoginPayload>() {
                 @Override
-                public void onResponse(LoginRequest response) {
+                public void onResponse(LoginPayload response) {
                     // Display the first 500 characters of the response string.
                     Log.d(TAG,response.token);
                 }

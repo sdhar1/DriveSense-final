@@ -1,10 +1,10 @@
-package wisc.drivesense.utility;
+package wisc.drivesense.httpPayloads;
 
 /**
  * Created by peter on 10/28/16.
  */
 
-public class LoginRequest {
+public class LoginPayload {
     //Request
     public String email;
     public String password;
