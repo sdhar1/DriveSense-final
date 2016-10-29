@@ -17,6 +17,8 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.facebook.login.LoginManager;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +36,7 @@ public class AuthLandingFragment extends Fragment {
     private final String TAG = "AuthLandingFragment";
     private EditText mEmailText;
     private EditText mPasswordText;
+    private static final int RC_SIGN_IN = 769;
 
     public static AuthLandingFragment newInstance() {
         return new AuthLandingFragment();
@@ -71,7 +74,8 @@ public class AuthLandingFragment extends Fragment {
         view.findViewById(R.id.google_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(((UserActivity)self.getActivity()).mGoogleApiClient);
+                startActivityForResult(signInIntent, RC_SIGN_IN);
             }
         });
 
@@ -167,5 +171,10 @@ public class AuthLandingFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ((UserActivity)this.getActivity()).callbackManager.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RC_SIGN_IN) {
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            ((UserActivity)this.getActivity()).handleGoogleSignInResult(result);
+        }
     }
 }

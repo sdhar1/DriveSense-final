@@ -379,8 +379,7 @@ public class DatabaseHelper {
             user.email_ = cursor.getString(0);
             user.firstname_ = cursor.getString(1);
             user.lastname_ = cursor.getString(2);
-            user.password_ = cursor.getString(3);
-            user.loginstatus_ = cursor.getInt(4);
+            user.loginstatus_ = cursor.getInt(3);
             break;
         } while (cursor.moveToNext());
         return user;

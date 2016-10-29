@@ -1,5 +1,6 @@
 package wisc.drivesense.activity;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +16,12 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 import wisc.drivesense.R;
 import wisc.drivesense.database.DatabaseHelper;
@@ -30,17 +37,17 @@ import wisc.drivesense.utility.DriveSenseToken;
 public class UserActivity extends AppCompatActivity {
     private final String TAG = "UserActivity";
     public CallbackManager callbackManager;
+    public GoogleApiClient mGoogleApiClient;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         final AppCompatActivity self = this;
         super.onCreate(savedInstanceState);
 
-
         setContentView(R.layout.activity_user);
 
         initFacebook();
-
+        initGoogle();
 
         reland();
     }
@@ -73,7 +80,7 @@ public class UserActivity extends AppCompatActivity {
         this.reland();
     }
 
-    public void initFacebook() {
+    private void initFacebook() {
         final AppCompatActivity self = this;
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
@@ -113,5 +120,56 @@ public class UserActivity extends AppCompatActivity {
                     Toast.makeText(self, "Error during facebook login.", Toast.LENGTH_SHORT).show();
                 }
             });
+    }
+
+    private void initGoogle(){
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.google_server_client_id))
+                .requestEmail()
+                .build();
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this /* FragmentActivity */, new GoogleApiClient.OnConnectionFailedListener() {
+                    @Override
+                    public void onConnectionFailed(ConnectionResult connectionResult) {
+                        Log.e("ERROR:", "Connection to Google failed");
+                        Toast.makeText(getApplicationContext(),
+                                "Please check your Internet connection",
+                                Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                })
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+    }
+
+    public void handleGoogleSignInResult(GoogleSignInResult result) {
+        Log.d(TAG, "Google sign in result:" + result.isSuccess() + result.toString());
+        if (result.isSuccess()) {
+            // Signed in successfully, show authenticated UI.
+            GoogleSignInAccount acct = result.getSignInAccount();
+            Log.d(TAG, "Got google auth token: " + acct.getIdToken());
+            final Context ctx = this;
+            TokenLoginPayload tokenLogin = new TokenLoginPayload();
+            tokenLogin.id_token = acct.getIdToken();
+            GsonRequest<LoginPayload> loginReq = new GsonRequest<LoginPayload>(Request.Method.POST, Constants.kGoogleSignInURL,
+                    tokenLogin, LoginPayload.class,
+                    new Response.Listener<LoginPayload>() {
+                        @Override
+                        public void onResponse(LoginPayload response) {
+                            Log.d(TAG,"Got drivesense token: "+response.token);
+                            handleDrivesenseLogin(response.token);
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(ctx, R.string.login_failed, Toast.LENGTH_SHORT).show();
+                }
+            });
+            // Add the request to the RequestQueue.
+            RequestQueueSingleton.getInstance(this).getRequestQueue().add(loginReq);
+        } else {
+            // Signed out, show unauthenticated UI.
+
+        }
     }
 }
