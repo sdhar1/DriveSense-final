@@ -35,6 +35,7 @@ import wisc.drivesense.uploader.HttpClient;
 import wisc.drivesense.uploader.RequestQueueSingleton;
 import wisc.drivesense.utility.Constants;
 import wisc.drivesense.httpPayloads.LoginPayload;
+import wisc.drivesense.utility.DriveSenseToken;
 import wisc.drivesense.utility.User;
 
 
@@ -47,10 +48,6 @@ public class UserActivity extends Activity {
      * A dummy authentication store containing known user names and passwords.
      * TODO: remove after connecting to a real authentication system.
      */
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-    private RegisterTask mAuthTask = null;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -121,32 +118,6 @@ public class UserActivity extends Activity {
             }
         });
 
-
-        /*
-        mFacebookLoginButton = (LoginButton) findViewById((R.id.login_button));
-        mFacebookLoginButton.setReadPermissions("public_profile","email");
-
-        callbackManager = CallbackManager.Factory.create();
-
-        mFacebookLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                // App code
-            }
-
-            @Override
-            public void onCancel() {
-                // App code
-            }
-
-            @Override
-            public void onError(FacebookException exception) {
-                // App code
-            }
-        });
-
-        */
-
         dbHelper_ = new DatabaseHelper();
         curUser_ = dbHelper_.getCurrentUser();
         if(curUser_ == null) {
@@ -209,7 +180,9 @@ public class UserActivity extends Activity {
         mUserDetailView.setVisibility(View.GONE);
         mEmailSignOutButton.setVisibility(View.GONE);
     }
-
+    public void handleDrivesenseLoginToken(String token) {
+        DriveSenseToken dsToken = new DriveSenseToken(token);
+    }
 
     /**
     * Attempts to sign in or register the account specified by the login form.
@@ -233,6 +206,7 @@ public class UserActivity extends Activity {
                 public void onResponse(LoginPayload response) {
                     // Display the first 500 characters of the response string.
                     Log.d(TAG,response.token);
+                    handleDrivesenseLoginToken(response.token);
                 }
             }, new Response.ErrorListener() {
             @Override
@@ -297,9 +271,6 @@ public class UserActivity extends Activity {
     private void attemptSignUp() {
 
         Log.d(TAG, "attempt to sign up");
-        if (mAuthTask != null) {
-            return;
-        }
 
         // Reset errors.
         mEmailView.setError(null);
@@ -366,8 +337,6 @@ public class UserActivity extends Activity {
             curUser_.password_ = password;
             curUser_.firstname_ = firstname;
             curUser_.lastname_ = lastname;
-            mAuthTask = new RegisterTask(curUser_, false);
-            mAuthTask.execute((Void) null);
         }
     }
     /**
@@ -406,96 +375,5 @@ public class UserActivity extends Activity {
         }
     }
 
-
-
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class RegisterTask extends AsyncTask<Void, Void, Boolean> {
-
-        private User user_;
-        private boolean signin_ = false;
-
-
-
-        RegisterTask(User user, boolean issignin) {
-            user_ = user;
-            signin_ = issignin;
-        }
-
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-            String res = "";
-            try {
-                // Simulate network access.
-                String url = "";
-                if(signin_) {
-                    url = Constants.kSignInURL;
-                } else {
-                    url = Constants.kSignUpURL;
-                }
-                HttpClient client = new HttpClient(url);
-                client.connectForMultipart();
-                client.addFormPart("email", user_.email_);
-                client.addFormPart("password", user_.password_);
-                if(!signin_) {
-                    client.addFormPart("firstname", user_.firstname_);
-                    client.addFormPart("lastname", user_.lastname_);
-                }
-                client.finishMultipart();
-                res = client.getResponse();
-                Log.d(TAG, res);
-            } catch (Throwable t) {
-                t.printStackTrace();
-                return false;
-            }
-
-            if(res == null || !res.contains("success")) {
-                return false;
-            } else {
-                return true;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                if(signin_) {
-                    //attempted remotely to sign in
-                    boolean res = dbHelper_.userLogin(user_);
-                    if(false == res) {
-                       //local failed
-                        dbHelper_.newUser(user_);
-                    }
-                    curUser_ = dbHelper_.getCurrentUser();
-                    if(curUser_ != null) {
-                        displaySignOut(curUser_);
-                    } else {
-                        displaySignIn();
-                    }
-                } else {
-                    //attempted to sign up
-                    dbHelper_.newUser(user_);
-                    displaySignOut(user_);
-                }
-                finish();
-            } else {
-                mEmailView.setError(getString(R.string.error_login_failed));
-                mEmailView.requestFocus();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
-    }
 }
 
