@@ -1,6 +1,7 @@
 package wisc.drivesense.fragment;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
@@ -15,6 +16,10 @@ import android.widget.Toast;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.facebook.login.LoginManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import wisc.drivesense.R;
 import wisc.drivesense.activity.UserActivity;
@@ -41,6 +46,7 @@ public class AuthLandingFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        final Fragment self = this;
         mEmailText = (EditText) view.findViewById(R.id.email);
         mPasswordText = (EditText) view.findViewById(R.id.password);
 
@@ -59,6 +65,22 @@ public class AuthLandingFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 signInClicked(view);
+            }
+        });
+
+        view.findViewById(R.id.google_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        view.findViewById(R.id.facebook_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ArrayList<String> permissions = new ArrayList<String>();
+                permissions.add("email");
+                LoginManager.getInstance().logInWithReadPermissions(self,permissions);
             }
         });
 
@@ -114,7 +136,7 @@ public class AuthLandingFragment extends Fragment {
      */
     private void attemptSignIn(String email, String password) {
         // Request a string response from the provided URL.
-        final Context ctx = this.getContext();
+        final Fragment self = this;
 
         LoginPayload login = new LoginPayload();
         login.email = email;
@@ -128,12 +150,12 @@ public class AuthLandingFragment extends Fragment {
                     public void onResponse(LoginPayload response) {
                         // Display the first 500 characters of the response string.
                         Log.d(TAG,response.token);
-                        handleDrivesenseLogin(response.token);
+                        ((UserActivity)self.getActivity()).handleDrivesenseLogin(response.token);
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(ctx, R.string.login_failed, Toast.LENGTH_SHORT).show();
+                Toast.makeText(self.getContext(), R.string.login_failed, Toast.LENGTH_SHORT).show();
             }
         });
         // Add the request to the RequestQueue.
@@ -141,16 +163,9 @@ public class AuthLandingFragment extends Fragment {
     }
     // endregion
 
-    public void handleDrivesenseLogin(String driveSenseJWT) {
-        DriveSenseToken dsToken = DriveSenseToken.InstantiateFromJWT(driveSenseJWT);
-        DatabaseHelper dbH = new DatabaseHelper();
-        if(dbH.hasUser(dsToken.email)) {
-            dbH.userLogin(dsToken.email);
-        } else {
-            dbH.newUser(dsToken.email, dsToken.firstname, dsToken.lastname);
-        }
-        dbH.closeDatabase();
-
-        ((UserActivity)this.getActivity()).reland();
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        ((UserActivity)this.getActivity()).callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 }

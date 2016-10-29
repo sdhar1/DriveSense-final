@@ -37,6 +37,9 @@ public class Constants {
     public static final String kSignInURL = kDomain + "/auth/signin";
     public static final String kSignUpURL = kDomain + "/androidsignup";
 
+    public static final String kGoogleSignInURL = kDomain + "/auth/google";
+    public static final String kFacebookSignInURL = kDomain + "/auth/facebook";
+
     public static final String kDBFolder = "/data/data/wisc.drivesense/databases/";
 
     public static final int kNumberOfTripsDisplay = 20;
