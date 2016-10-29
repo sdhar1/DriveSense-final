@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.user:
-                startActivity(new Intent(this, AuthActivity.class));
+                startActivity(new Intent(this, UserActivity.class));
                 return true;
 
             case R.id.settings:

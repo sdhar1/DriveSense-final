@@ -2,6 +2,7 @@ package wisc.drivesense.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -16,12 +17,13 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
 import wisc.drivesense.R;
+import wisc.drivesense.activity.UserActivity;
+import wisc.drivesense.database.DatabaseHelper;
 import wisc.drivesense.httpPayloads.LoginPayload;
 import wisc.drivesense.uploader.GsonRequest;
 import wisc.drivesense.uploader.RequestQueueSingleton;
 import wisc.drivesense.utility.Constants;
 import wisc.drivesense.utility.DriveSenseToken;
-import wisc.drivesense.utility.User;
 
 public class AuthLandingFragment extends Fragment {
     private final String TAG = "AuthLandingFragment";
@@ -126,7 +128,7 @@ public class AuthLandingFragment extends Fragment {
                     public void onResponse(LoginPayload response) {
                         // Display the first 500 characters of the response string.
                         Log.d(TAG,response.token);
-                        handleDrivesenseLoginToken(response.token);
+                        handleDrivesenseLogin(response.token);
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -139,7 +141,16 @@ public class AuthLandingFragment extends Fragment {
     }
     // endregion
 
-    public void handleDrivesenseLoginToken(String token) {
-        DriveSenseToken dsToken = new DriveSenseToken(token);
+    public void handleDrivesenseLogin(String driveSenseJWT) {
+        DriveSenseToken dsToken = DriveSenseToken.InstantiateFromJWT(driveSenseJWT);
+        DatabaseHelper dbH = new DatabaseHelper();
+        if(dbH.hasUser(dsToken.email)) {
+            dbH.userLogin(dsToken.email);
+        } else {
+            dbH.newUser(dsToken.email, dsToken.firstname, dsToken.lastname);
+        }
+        dbH.closeDatabase();
+
+        ((UserActivity)this.getActivity()).reland();
     }
 }
