@@ -5,11 +5,11 @@ import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.util.Log;
 
-import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-public class Trace {
+public class Trace implements Serializable {
 
     public long time;
     public float [] values = null;
